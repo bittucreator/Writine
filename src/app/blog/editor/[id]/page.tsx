@@ -46,7 +46,6 @@ export default function BlogEditorPage() {
   const [keywordInput, setKeywordInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [credits, setCredits] = useState(0);
   const [domainId, setDomainId] = useState<string | null>(null);
   const [customSlug, setCustomSlug] = useState<string | null>(null);
   const [, setPublishedUrl] = useState<string | null>(null);
@@ -68,17 +67,6 @@ export default function BlogEditorPage() {
 
   useEffect(() => {
     if (user && id) {
-      const loadCredits = async () => {
-        const { data } = await supabase
-          .from('credits_balance')
-          .select('balance')
-          .eq('user_id', user?.id)
-          .maybeSingle();
-
-        if (data) {
-          setCredits(data.balance);
-        }
-      };
 
       const loadBlog = async () => {
         setLoading(true);
@@ -111,7 +99,6 @@ export default function BlogEditorPage() {
       };
 
       loadBlog();
-      loadCredits();
     }
   }, [id, user]);
 
@@ -249,11 +236,6 @@ export default function BlogEditorPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="gap-1.5 text-xs">
-              <Sparkles className="w-3 h-3 text-[#918df6]" />
-              {credits} credits
-            </Badge>
-
             {!isPreview && (
               <Button
                 variant="outline"

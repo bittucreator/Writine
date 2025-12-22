@@ -43,7 +43,6 @@ export default function DomainsPage() {
   const [domains, setDomains] = useState<Domain[]>([]);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState<string | null>(null);
-  const [, setCredits] = useState(0);
   const [, setBlogCounts] = useState({ all: 0, drafts: 0, published: 0 });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDnsModal, setShowDnsModal] = useState(false);
@@ -78,17 +77,6 @@ export default function DomainsPage() {
       
       if (profileData?.username) {
         setUsername(profileData.username);
-      }
-
-      // Fetch credits
-      const { data: creditsData } = await supabase
-        .from('credits_balance')
-        .select('balance')
-        .eq('user_id', user!.id)
-        .single();
-      
-      if (creditsData) {
-        setCredits(creditsData.balance);
       }
 
       // Fetch blog counts

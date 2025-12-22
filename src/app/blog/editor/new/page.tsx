@@ -22,7 +22,6 @@ import {
   Eye,
   Edit3,
   X,
-  Sparkles,
   Settings,
   Copy,
   Globe,
@@ -44,7 +43,6 @@ export default function NewBlogEditorPage() {
   const [seoKeywords, setSeoKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState('');
   const [saving, setSaving] = useState(false);
-  const [credits, setCredits] = useState(0);
   
   // View state
   const [isPreview, setIsPreview] = useState(false);
@@ -59,23 +57,6 @@ export default function NewBlogEditorPage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
-
-  useEffect(() => {
-    if (user) {
-      const loadCredits = async () => {
-        const { data } = await supabase
-          .from('credits_balance')
-          .select('balance')
-          .eq('user_id', user?.id)
-          .maybeSingle();
-
-        if (data) {
-          setCredits(data.balance);
-        }
-      };
-      loadCredits();
-    }
-  }, [user]);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -215,7 +196,7 @@ export default function NewBlogEditorPage() {
               Dashboard
             </Button>
             <div className="w-px h-5 bg-slate-200" />
-            <span className="text-sm font-medium text-slate-700 truncate max-w-[200px]">
+            <span className="text-sm font-medium text-slate-700 truncate max-w-50">
               {title || 'New Blog'}
             </span>
             {isPreview ? (
@@ -229,11 +210,6 @@ export default function NewBlogEditorPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="gap-1.5 text-xs">
-              <Sparkles className="w-3 h-3 text-[#918df6]" />
-              {credits} credits
-            </Badge>
-
             {!isPreview && (
               <Button
                 variant="outline"

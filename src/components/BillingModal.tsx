@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +11,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { 
   Check, 
   Loader2,
@@ -101,7 +99,7 @@ export function BillingModal({ open, onOpenChange }: BillingModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[650px]">
+      <DialogContent className="sm:max-w-162.5">
         <DialogHeader>
           <DialogTitle>Billing & Plans</DialogTitle>
           <DialogDescription>
@@ -154,7 +152,7 @@ export function BillingModal({ open, onOpenChange }: BillingModalProps) {
                   <ul className="space-y-1.5 mb-4">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-center gap-2 text-xs">
-                        <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-green-500 shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}

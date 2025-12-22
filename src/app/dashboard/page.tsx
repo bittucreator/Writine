@@ -41,7 +41,6 @@ import {
   Clock,
   CheckCircle,
   ArrowUpDown,
-  CreditCard,
 } from 'lucide-react';
 
 interface Blog {
@@ -62,7 +61,6 @@ export default function DashboardPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [credits, setCredits] = useState(0);
   const [blogCounts, setBlogCounts] = useState({ all: 0, drafts: 0, published: 0 });
   
   // Filters
@@ -121,17 +119,6 @@ export default function DashboardPage() {
   const fetchData = async () => {
     try {
       const accessToken = session?.access_token;
-      
-      // Fetch credits
-      const creditsData = await db.get('credits_balance', {
-        select: 'balance',
-        filters: { user_id: user!.id },
-        accessToken,
-      });
-      
-      if (creditsData && creditsData.length > 0) {
-        setCredits(creditsData[0].balance);
-      }
 
       // Fetch blogs
       const blogsData = await db.get('blogs', {
@@ -373,17 +360,6 @@ export default function DashboardPage() {
               <p className="text-2xl font-semibold">{blogCounts.published}</p>
             </div>
           </button>
-          <div className="bg-white rounded-2xl border p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <CreditCard className="w-4 h-4 text-blue-500" />
-                </div>
-                <span className="text-xs text-muted-foreground">Credits</span>
-              </div>
-              <p className="text-2xl font-semibold">{credits}</p>
-            </div>
-          </div>
         </div>
 
         {/* Table */}

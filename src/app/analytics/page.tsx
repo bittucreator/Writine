@@ -55,7 +55,6 @@ export default function AnalyticsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [credits, setCredits] = useState(0);
   const [blogCounts, setBlogCounts] = useState({ all: 0, drafts: 0, published: 0 });
   const [weeklyData] = useState(generateMockData());
   const [monthlyData] = useState(generateMonthlyData());
@@ -75,17 +74,6 @@ export default function AnalyticsPage() {
 
   const fetchData = async () => {
     try {
-      // Fetch credits
-      const { data: creditsData } = await supabase
-        .from('credits_balance')
-        .select('balance')
-        .eq('user_id', user!.id)
-        .single();
-      
-      if (creditsData) {
-        setCredits(creditsData.balance);
-      }
-
       // Fetch blog counts
       const { data: blogs } = await supabase
         .from('blogs')
@@ -196,7 +184,7 @@ export default function AnalyticsPage() {
                     <CardDescription className="text-xs">Daily page views</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-[300px]">
+                    <div className="h-75">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={weeklyData}>
                           <defs>
@@ -236,7 +224,7 @@ export default function AnalyticsPage() {
                     <CardDescription className="text-xs">Published vs Drafts</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-[200px]">
+                    <div className="h-50">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -284,7 +272,7 @@ export default function AnalyticsPage() {
                   <CardDescription className="text-xs">Views and posts over time</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
+                  <div className="h-75">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={monthlyData}>
                         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -296,7 +284,7 @@ export default function AnalyticsPage() {
                             border: '1px solid #e5e7eb',
                             boxShadow: 'none'
                           }} 
-                        />
+                        />h-75
                         <Bar dataKey="views" fill="#918df6" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>

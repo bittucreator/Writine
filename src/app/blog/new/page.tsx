@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import BlogEditorPro from '@/components/BlogEditorPro';
 import { generateBlogContent, generateSEOMetadata, generateOutline } from '@/lib/ai';
-import { analyzeSEO, generateSlug } from '@/lib/seo';
+import { analyzeSEO } from '@/lib/seo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -42,16 +42,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Save,
   Sparkles,
-  Send,
   ArrowLeft,
   ArrowRight,
   Loader2,
   CheckCircle,
   AlertCircle,
-  Wand2,
-  List,
   Globe,
   Eye,
   PanelRightClose,
@@ -223,9 +219,8 @@ function BlogEditPageContent() {
   const [seoDescription, setSeoDescription] = useState('');
   const [seoKeywords, setSeoKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [credits, setCredits] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
   const [showSidebar] = useState(true);
 
@@ -239,24 +234,11 @@ function BlogEditPageContent() {
 
   useEffect(() => {
     if (user) {
-      loadCredits();
       if (id) {
         loadBlog();
       }
     }
   }, [id, user]);
-
-  const loadCredits = async () => {
-    const { data } = await supabase
-      .from('credits_balance')
-      .select('balance')
-      .eq('user_id', user?.id)
-      .maybeSingle();
-
-    if (data) {
-      setCredits(data.balance);
-    }
-  };
 
   const loadBlog = async () => {
     const { data, error } = await supabase
@@ -280,28 +262,13 @@ function BlogEditPageContent() {
     }
   };
 
-  const deductCredits = async (amount: number) => {
-    await supabase.from('credit_transactions').insert({
-      user_id: user?.id,
-      amount: -amount,
-      transaction_type: 'usage',
-      description: 'AI content generation',
-    });
-    setCredits(credits - amount);
-  };
-
   const handleGenerateOutline = async () => {
     if (!topic.trim()) return;
-    if (credits < 2) {
-      alert('Insufficient credits. You need at least 2 credits to generate an outline.');
-      return;
-    }
 
     setGeneratingOutline(true);
     try {
       const generatedOutline = await generateOutline(topic, keywords);
       setOutline(generatedOutline);
-      await deductCredits(2);
       setWizardStep('outline');
     } catch (error) {
       console.error('Error generating outline:', error);
@@ -312,11 +279,6 @@ function BlogEditPageContent() {
   };
 
   const handleGenerateContent = async () => {
-    if (credits < 10) {
-      alert('Insufficient credits. You need at least 10 credits to generate content.');
-      return;
-    }
-
     setGenerating(true);
     setGenerationStep(0);
     setWizardStep('generate');
@@ -341,7 +303,6 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
       setContent(generatedContent);
       setTitle(topic);
       setExcerpt(topic.slice(0, 160));
-      await deductCredits(10);
       
       // Step 4: SEO Optimization
       setGenerationStep(4);
@@ -350,7 +311,6 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
         setSeoTitle(metadata.seoTitle);
         setSeoDescription(metadata.seoDescription);
         setSeoKeywords(metadata.keywords);
-        await deductCredits(5);
       } catch (e) {
         console.error('SEO generation failed', e);
       }
@@ -392,47 +352,6 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
     }
   };
 
-  const handleSave = async (shouldPublish = false) => {
-    if (!title.trim()) {
-      alert('Please enter a title');
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const slug = generateSlug(title);
-      const blogData = {
-        user_id: user?.id,
-        title,
-        slug,
-        content,
-        excerpt,
-        seo_title: seoTitle,
-        seo_description: seoDescription,
-        seo_keywords: seoKeywords,
-        readability_score: seoAnalysis.readabilityScore,
-        seo_score: seoAnalysis.score,
-        status: shouldPublish ? 'published' : 'draft',
-        published_at: shouldPublish ? new Date().toISOString() : null,
-      };
-
-      if (id) {
-        const { error } = await supabase.from('blogs').update(blogData).eq('id', id);
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase.from('blogs').insert(blogData).select().single();
-        if (error) throw error;
-        router.replace(`/blog/edit/${data.id}`);
-      }
-
-      alert(shouldPublish ? 'Blog published successfully!' : 'Blog saved successfully!');
-    } catch (error) {
-      console.error('Error saving blog:', error);
-      alert('Failed to save blog. Please try again.');
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const addKeyword = () => {
     if (keywordInput.trim() && !seoKeywords.includes(keywordInput.trim())) {
@@ -503,7 +422,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                Generate Outline (2 credits)
+                Generate Outline
               </>
             )}
           </Button>
@@ -693,7 +612,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Generate Blog (10 credits)
+                  Generate Blog
                 </>
               )}
             </Button>
@@ -737,7 +656,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
         </div>
 
         {/* Title with Gradient */}
-        <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold mb-2 bg-linear-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
           Creating Your Blog Post
         </h2>
         <p className="text-sm text-muted-foreground mb-8">
@@ -748,7 +667,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
         <div className="mb-8 px-4">
           <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-[#918df6] to-[#7b77e0] rounded-full transition-all duration-500 ease-out"
+              className="h-full bg-linear-to-r from-[#918df6] to-[#7b77e0] rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -775,7 +694,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
               >
                 {/* Step Icon */}
                 <div className={`
-                  w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
+                  w-8 h-8 rounded-full flex items-center justify-center shrink-0
                   ${status === 'complete' ? 'bg-[#918df6] text-white' : ''}
                   ${status === 'active' ? 'bg-[#918df6] text-white' : ''}
                   ${status === 'pending' ? 'bg-slate-200 text-slate-400' : ''}
@@ -898,7 +817,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
       {showPreview && (
         <div className="w-1/2 space-y-4 sticky top-20 h-fit">
           <Card className="overflow-hidden">
-            <CardHeader className="pb-4 bg-gradient-to-r from-[#918df6]/10 to-transparent">
+            <CardHeader className="pb-4 bg-linear-to-r from-[#918df6]/10 to-transparent">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Eye className="w-5 h-5 text-[#918df6]" />

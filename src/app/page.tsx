@@ -157,7 +157,7 @@ export default function LandingPage() {
 
           {/* Hero Image/Preview */}
           <div className="relative max-w-5xl mx-auto">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#918df6]/20 to-purple-300/20 rounded-2xl blur-3xl" />
+            <div className="absolute inset-0 bg-linear-to-r from-[#918df6]/20 to-purple-300/20 rounded-2xl blur-3xl" />
             <div className="relative bg-white rounded-2xl border shadow-2xl overflow-hidden">
               <div className="bg-slate-100 px-4 py-3 flex items-center gap-2 border-b">
                 <div className="flex gap-1.5">
@@ -171,7 +171,7 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-              <div className="p-8 bg-gradient-to-b from-white to-slate-50">
+              <div className="p-8 bg-linear-to-b from-white to-slate-50">
                 <div className="flex gap-6">
                   {/* Sidebar Preview */}
                   <div className="hidden md:block w-48 space-y-3">
@@ -256,7 +256,7 @@ export default function LandingPage() {
                     {item.step}
                   </div>
                   {index < 2 && (
-                    <div className="hidden md:block absolute left-1/2 top-6 w-full h-0.5 bg-gradient-to-r from-[#918df6] to-[#918df6]/20 -z-10" />
+                    <div className="hidden md:block absolute left-1/2 top-6 w-full h-0.5 bg-linear-to-r from-[#918df6] to-[#918df6]/20 -z-10" />
                   )}
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2">{item.title}</h3>

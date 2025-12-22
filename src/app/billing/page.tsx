@@ -224,7 +224,7 @@ function BillingContent() {
           <ul className="space-y-3">
             {PLANS.find(p => p.id === 'pro')?.features.map((feature, idx) => (
               <li key={idx} className="flex items-center gap-3 text-sm">
-                <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <Check className="w-5 h-5 text-green-500 shrink-0" />
                 <span>{feature}</span>
               </li>
             ))}
@@ -283,7 +283,7 @@ function BillingContent() {
               <ul className="space-y-2 mb-6">
                 {plan.features.map((feature, idx) => (
                   <li key={idx} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-green-500 shrink-0" />
                     <span>{feature}</span>
                   </li>
                 ))}

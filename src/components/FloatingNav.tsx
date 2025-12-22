@@ -13,18 +13,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   LayoutDashboard,
   Globe,
-  User,
   CreditCard,
-  LogOut,
   Plus,
   FileText,
 } from 'lucide-react';
@@ -32,7 +23,7 @@ import {
 export function FloatingNav() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string>('');
 
@@ -58,11 +49,6 @@ export function FloatingNav() {
     loadProfile();
   }, [user]);
 
-  const handleSignOut = async () => {
-    await signOut();
-    router.push('/login');
-  };
-
   const isActive = (path: string) => {
     if (path === '/dashboard') return pathname === '/dashboard';
     return pathname === path || pathname.startsWith(path + '/');
@@ -72,11 +58,10 @@ export function FloatingNav() {
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
   const navItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { id: 'new', icon: Plus, label: 'New Blog', path: '/blog/new' },
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { id: 'templates', icon: FileText, label: 'Templates', path: '/templates' },
     { id: 'domains', icon: Globe, label: 'Domains', path: '/domains' },
-    { id: 'profile', icon: User, label: 'Profile', path: '/profile' },
     { id: 'billing', icon: CreditCard, label: 'Billing', path: '/billing' },
   ];
 
@@ -133,37 +118,25 @@ export function FloatingNav() {
 
           <div className="w-px h-6 bg-slate-200 mx-1" />
 
-          {/* User Menu */}
-          <DropdownMenu>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center justify-center w-11 h-11 rounded-xl hover:bg-slate-100 transition-colors">
-                    <Avatar className="w-7 h-7 border-2 border-white shadow-sm">
-                      <AvatarImage src={avatarUrl || undefined} alt={userName} />
-                      <AvatarFallback className="text-xs bg-[#918df6] text-white">
-                        {userInitials}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="bg-slate-900 text-white border-0">
-                <p>{userName}</p>
-              </TooltipContent>
-            </Tooltip>
-            <DropdownMenuContent align="center" side="top" className="w-48 mb-2">
-              <div className="px-2 py-1.5">
-                <p className="text-sm font-medium">{userName}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* User Profile */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={() => router.push('/profile')}
+                className="flex items-center justify-center w-11 h-11 rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <Avatar className="w-7 h-7 border-2 border-white shadow-sm">
+                  <AvatarImage src={avatarUrl || undefined} alt={userName} />
+                  <AvatarFallback className="text-xs bg-[#918df6] text-white">
+                    {userInitials}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="bg-slate-900 text-white border-0">
+              <p>{userName}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </TooltipProvider>

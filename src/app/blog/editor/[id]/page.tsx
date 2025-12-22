@@ -27,6 +27,7 @@ import {
   Copy,
   Globe,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function BlogEditorPage() {
   const params = useParams();
@@ -116,7 +117,7 @@ export default function BlogEditorPage() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      alert('Please enter a title');
+      toast.error('Please enter a title');
       return;
     }
 
@@ -140,10 +141,10 @@ export default function BlogEditorPage() {
       if (error) throw error;
 
       setSlug(newSlug);
-      alert('Blog saved successfully!');
+      toast.success('Blog saved successfully!');
     } catch (error) {
       console.error('Error saving blog:', error);
-      alert('Failed to save blog. Please try again.');
+      toast.error('Failed to save blog. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -151,7 +152,7 @@ export default function BlogEditorPage() {
 
   const handlePublish = async (publishData: { domainId: string | null; customSlug: string; publishedUrl: string }) => {
     if (!title.trim()) {
-      alert('Please enter a title');
+      toast.error('Please enter a title');
       return;
     }
 
@@ -185,10 +186,10 @@ export default function BlogEditorPage() {
       setPublishedUrl(publishData.publishedUrl);
       setBlogStatus('published');
       setShowPublishDialog(false);
-      alert('Blog published successfully!');
+      toast.success('Blog published successfully!');
     } catch (error) {
       console.error('Error publishing blog:', error);
-      alert('Failed to publish blog. Please try again.');
+      toast.error('Failed to publish blog. Please try again.');
     } finally {
       setPublishing(false);
     }
@@ -527,7 +528,7 @@ export default function BlogEditorPage() {
                 className="w-full"
                 onClick={() => {
                   navigator.clipboard.writeText(content);
-                  alert('Content copied to clipboard!');
+                  toast.success('Content copied to clipboard!');
                 }}
               >
                 <Copy className="w-4 h-4 mr-2" />

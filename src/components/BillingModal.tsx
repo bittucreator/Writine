@@ -19,6 +19,7 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface BillingModalProps {
   open: boolean;
@@ -95,7 +96,7 @@ export function BillingModal({ open, onOpenChange }: BillingModalProps) {
   const handleSelectPlan = (planId: string) => {
     // TODO: Implement Stripe checkout
     console.log('Selected plan:', planId);
-    alert(`Plan upgrade coming soon! Selected: ${planId}`);
+    toast.info(`Plan upgrade coming soon! Selected: ${planId}`);
   };
 
   return (

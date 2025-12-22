@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -23,12 +22,11 @@ import {
   Globe,
   Trash2,
   CheckCircle,
-  AlertCircle,
-  Clock,
   Loader2,
   ExternalLink,
   Copy,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Domain {
   id: string;
@@ -42,11 +40,15 @@ export default function DomainsPage() {
   const { user, loading: authLoading } = useAuth();
   const [domains, setDomains] = useState<Domain[]>([]);
   const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState<string | null>(null);
   const [, setCredits] = useState(0);
   const [, setBlogCounts] = useState({ all: 0, drafts: 0, published: 0 });
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showDnsModal, setShowDnsModal] = useState(false);
+  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [newDomain, setNewDomain] = useState('');
   const [adding, setAdding] = useState(false);
+  const [verifying, setVerifying] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -65,6 +67,17 @@ export default function DomainsPage() {
   const loadData = async () => {
     setLoading(true);
     try {
+      // Fetch user profile for username
+      const { data: profileData } = await supabase
+        .from('user_profiles')
+        .select('username')
+        .eq('id', user!.id)
+        .single();
+      
+      if (profileData?.username) {
+        setUsername(profileData.username);
+      }
+
       // Fetch credits
       const { data: creditsData } = await supabase
         .from('credits_balance')
@@ -118,11 +131,13 @@ export default function DomainsPage() {
 
       if (error) throw error;
 
+      toast.success('Domain added! Configure DNS to verify.');
       setNewDomain('');
       setShowAddModal(false);
       loadData();
     } catch (error) {
       console.error('Error adding domain:', error);
+      toast.error('Failed to add domain');
     } finally {
       setAdding(false);
     }
@@ -137,15 +152,76 @@ export default function DomainsPage() {
 
       if (error) throw error;
       setDomains(domains.filter((d) => d.id !== id));
+      toast.success('Domain removed');
     } catch (error) {
       console.error('Error deleting domain:', error);
+      toast.error('Failed to remove domain');
     }
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleVerifyDomain = async (domain: Domain) => {
+    setVerifying(domain.id);
+    try {
+      // Method 1: Check CNAME record (for subdomains)
+      const cnameResponse = await fetch(`https://dns.google/resolve?name=${domain.domain}&type=CNAME`);
+      const cnameData = await cnameResponse.json();
+      const hasCname = cnameData.Answer?.some((record: { data: string }) => 
+        record.data?.includes('writine.com')
+      );
+
+      // Method 2: Check TXT record for verification (works for root domains)
+      // User should add: TXT record with value "writine-verify"
+      const txtResponse = await fetch(`https://dns.google/resolve?name=${domain.domain}&type=TXT`);
+      const txtData = await txtResponse.json();
+      console.log('TXT data:', txtData);
+      const hasTxt = txtData.Answer?.some((record: { data: string }) => {
+        // Google DNS returns TXT records with quotes, so strip them for comparison
+        const value = record.data?.replace(/"/g, '').trim();
+        return value === 'writine-verify' || value?.includes('writine-verify');
+      });
+
+      // Method 3: Check if domain resolves and we can reach it
+      // For now, if they have CNAME or TXT, consider it verified
+      const isVerified = hasCname || hasTxt;
+
+      const newStatus = isVerified ? 'verified' : 'pending';
+      
+      const { error } = await supabase
+        .from('custom_domains')
+        .update({ status: newStatus })
+        .eq('id', domain.id);
+
+      if (error) throw error;
+
+      setDomains(domains.map(d => 
+        d.id === domain.id ? { ...d, status: newStatus } : d
+      ));
+
+      if (isVerified) {
+        toast.success(`Domain verified! Your blogs are now accessible at ${domain.domain}`);
+      } else {
+        toast.error('DNS records not found yet', {
+          description: 'Add a CNAME pointing to writine.com, or add a TXT record with value: writine-verify',
+        });
+      }
+    } catch (error) {
+      console.error('Error verifying domain:', error);
+      toast.error('Error verifying domain. Please try again.');
+    } finally {
+      setVerifying(null);
+    }
+  };
+
+  const openDnsRecords = (domain: Domain) => {
+    setSelectedDomain(domain);
+    setShowDnsModal(true);
   };
 
   const getStatusIcon = (status: string) => {
@@ -181,177 +257,178 @@ export default function DomainsPage() {
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <FloatingNav />
-      <div className="max-w-6xl mx-auto px-6 py-8 pb-24">
+      <div className="max-w-4xl mx-auto px-6 py-8 pb-24">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-xl font-semibold mb-1">Domains</h1>
-            <p className="text-sm text-muted-foreground">Manage your custom domains</p>
-          </div>
-          <Button size="sm" onClick={() => setShowAddModal(true)}>
-            Add Domain
-          </Button>
+        <div className="mb-8">
+          <h1 className="text-xl font-semibold mb-1">Publishing</h1>
+          <p className="text-sm text-muted-foreground">Your blog URLs and custom domains</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-4 gap-4 mb-4">
-          <div className="bg-white rounded-2xl border p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
-                  <Globe className="w-4 h-4 text-[#918df6]" />
-                </div>
-                <span className="text-xs text-muted-foreground">All Domains</span>
+        {/* Your Blog URL */}
+        <div className="bg-white rounded-2xl border p-5 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 text-green-500" />
               </div>
-              <p className="text-2xl font-semibold">{domains.length}</p>
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl border p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                </div>
-                <span className="text-xs text-muted-foreground">Verified</span>
-              </div>
-              <p className="text-2xl font-semibold">{domains.filter(d => d.status === 'verified').length}</p>
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl border p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-amber-500" />
-                </div>
-                <span className="text-xs text-muted-foreground">Pending</span>
-              </div>
-              <p className="text-2xl font-semibold">{domains.filter(d => d.status === 'pending').length}</p>
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl border p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center">
-                  <AlertCircle className="w-4 h-4 text-red-500" />
-                </div>
-                <span className="text-xs text-muted-foreground">Failed</span>
-              </div>
-              <p className="text-2xl font-semibold">{domains.filter(d => d.status === 'failed').length}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Domains List */}
-        {domains.length === 0 ? (
-          <div className="bg-white rounded-2xl border p-12 text-center">
-            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-              <Globe className="w-6 h-6 text-muted-foreground" />
-            </div>
-            <h3 className="text-sm font-medium mb-1">No custom domains</h3>
-            <p className="text-xs text-muted-foreground mb-4 max-w-75 mx-auto">
-              Add a custom domain to publish your blog under your own brand
-            </p>
-            <Button size="sm" onClick={() => setShowAddModal(true)}>
-              <Plus className="w-4 h-4 mr-1" />
-              Add Domain
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {domains.map((domain) => (
-              <div
-                key={domain.id}
-                className="bg-white rounded-2xl border p-4 flex items-center justify-between hover:border-[#918df6] transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                    <Globe className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium">{domain.domain}</p>
-                      <Badge className={`text-[10px] ${getStatusBadge(domain.status)}`}>
-                        {getStatusIcon(domain.status)}
-                        <span className="ml-1 capitalize">{domain.status}</span>
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Added {new Date(domain.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {domain.status === 'verified' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 text-xs"
-                      onClick={() => window.open(`https://${domain.domain}`, '_blank')}
-                    >
-                      <ExternalLink className="w-3 h-3 mr-1" />
-                      Visit
-                    </Button>
+              <div>
+                <p className="text-sm font-medium">Your Blog</p>
+                <p className="text-xs text-muted-foreground">
+                  {username ? (
+                    <span className="font-mono">{username}.writine.com</span>
+                  ) : (
+                    'Set a username to get your blog URL'
                   )}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {username ? (
+                <>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteDomain(domain.id)}
+                    className="h-8 w-8 p-0"
+                    onClick={() => copyToClipboard(`${username}.writine.com`)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Copy className="w-4 h-4" />
                   </Button>
-                </div>
-              </div>
-            ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs"
+                    onClick={() => window.open(`https://${username}.writine.com`, '_blank')}
+                  >
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    Visit
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  size="sm"
+                  className="h-8 text-xs bg-[#918df6] hover:bg-[#7c78e3]"
+                  onClick={() => router.push('/profile')}
+                >
+                  Set Username
+                </Button>
+              )}
+            </div>
           </div>
-        )}
+        </div>
 
-        {/* Setup Instructions */}
-        <Card className="mt-6 rounded-2xl">
-          <CardContent className="p-6">
-            <h3 className="text-sm font-semibold mb-4">How to set up your domain</h3>
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <div className="w-6 h-6 rounded-full bg-[#918df6] text-white flex items-center justify-center text-xs font-medium shrink-0">
-                  1
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Add your domain</p>
-                  <p className="text-xs text-muted-foreground">Enter your custom domain above</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-6 h-6 rounded-full bg-[#918df6] text-white flex items-center justify-center text-xs font-medium shrink-0">
-                  2
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Configure DNS</p>
-                  <p className="text-xs text-muted-foreground mb-2">Add a CNAME record pointing to:</p>
-                  <div className="flex items-center gap-2">
-                    <code className="bg-muted px-2 py-1 rounded text-xs">blog.writine.com</code>
+        {/* Custom Domains Section */}
+        <div className="bg-white rounded-2xl border overflow-hidden">
+          <div className="p-5 border-b flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Custom Domains</p>
+              <p className="text-xs text-muted-foreground">Use your own domain</p>
+            </div>
+            <Button size="sm" className="h-8 text-xs" onClick={() => setShowAddModal(true)}>
+              <Plus className="w-3 h-3 mr-1" />
+              Add
+            </Button>
+          </div>
+          
+          {domains.length === 0 ? (
+            <div className="p-8 text-center">
+              <Globe className="w-8 h-8 text-muted-foreground/50 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No custom domains yet</p>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {domains.map((domain) => (
+                <div
+                  key={domain.id}
+                  className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{domain.domain}</span>
+                      <Badge className={`text-[10px] ${getStatusBadge(domain.status)}`}>
+                        {domain.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {domain.status !== 'verified' && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={() => {
+                            setSelectedDomain(domain);
+                            setShowDnsModal(true);
+                          }}
+                        >
+                          DNS
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={() => handleVerifyDomain(domain)}
+                          disabled={verifying === domain.id}
+                        >
+                          {verifying === domain.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            'Verify'
+                          )}
+                        </Button>
+                      </>
+                    )}
+                    {domain.status === 'verified' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => window.open(`https://${domain.domain}`, '_blank')}
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 w-6 p-0"
-                      onClick={() => copyToClipboard('blog.writine.com')}
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleDeleteDomain(domain.id)}
                     >
-                      <Copy className={`w-3 h-3 ${copied ? 'text-green-600' : ''}`} />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* API Access - Compact */}
+        <div className="bg-white rounded-2xl border p-5 mt-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <ExternalLink className="w-4 h-4 text-blue-500" />
               </div>
-              <div className="flex gap-3">
-                <div className="w-6 h-6 rounded-full bg-[#918df6] text-white flex items-center justify-center text-xs font-medium shrink-0">
-                  3
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Wait for verification</p>
-                  <p className="text-xs text-muted-foreground">DNS propagation takes up to 48 hours. We&apos;ll automatically verify and provision SSL.</p>
-                </div>
+              <div>
+                <p className="text-sm font-medium">API Access</p>
+                <p className="text-xs text-muted-foreground font-mono">/api/embed/{username || 'username'}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => {
+                const apiUrl = `https://writine.com/api/embed/${username || 'USERNAME'}`;
+                copyToClipboard(apiUrl);
+              }}
+            >
+              <Copy className="w-3 h-3 mr-1" />
+              Copy
+            </Button>
+          </div>
+        </div>
 
         {/* Add Domain Modal */}
         <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
@@ -390,6 +467,117 @@ export default function DomainsPage() {
                   'Add Domain'
                 )}
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* DNS Records Modal */}
+        <Dialog open={showDnsModal} onOpenChange={setShowDnsModal}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>DNS Setup</DialogTitle>
+              <DialogDescription>
+                {selectedDomain 
+                  ? <>Configure DNS for <strong>{selectedDomain.domain}</strong></>
+                  : 'Add these records at your domain registrar'
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              {/* Option 1: CNAME for subdomains */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded">Option 1</span>
+                  <span className="text-sm font-medium">For subdomains</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Use this for blog.yourdomain.com</p>
+                <div className="bg-muted rounded-lg p-3">
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p className="text-muted-foreground mb-1">Type</p>
+                      <p className="font-mono font-medium">CNAME</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground mb-1">Name</p>
+                      <p className="font-mono font-medium">blog</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground mb-1">Value</p>
+                      <div className="flex items-center gap-1">
+                        <p className="font-mono font-medium">writine.com</p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-5 w-5 p-0"
+                          onClick={() => copyToClipboard('writine.com')}
+                        >
+                          <Copy className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t" />
+
+              {/* Option 2: TXT for root domains */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Option 2</span>
+                  <span className="text-sm font-medium">For root domains</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Use this for yourdomain.com (verification only)</p>
+                <div className="bg-muted rounded-lg p-3">
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p className="text-muted-foreground mb-1">Type</p>
+                      <p className="font-mono font-medium">TXT</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground mb-1">Name</p>
+                      <p className="font-mono font-medium">@</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground mb-1">Value</p>
+                      <div className="flex items-center gap-1">
+                        <p className="font-mono font-medium">writine-verify</p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-5 w-5 p-0"
+                          onClick={() => copyToClipboard('writine-verify')}
+                        >
+                          <Copy className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-800">
+                  <strong>Note:</strong> DNS changes can take up to 48 hours to propagate.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowDnsModal(false)}>
+                Close
+              </Button>
+              {selectedDomain && (
+                <Button 
+                  className="bg-[#918df6] hover:bg-[#7c78e3]"
+                  onClick={() => {
+                    setShowDnsModal(false);
+                    handleVerifyDomain(selectedDomain);
+                  }}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Verify Now
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>

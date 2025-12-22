@@ -11,11 +11,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Mail, Loader2, Lock, Pencil, CheckCircle } from 'lucide-react';
+import { User, Mail, Loader2, Lock, Pencil, CheckCircle, LogOut, Globe, Copy } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -25,6 +25,9 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [username, setUsername] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [copied, setCopied] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export default function ProfilePage() {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('full_name, avatar_url')
+        .select('full_name, avatar_url, username')
         .eq('id', user.id)
         .single();
 
@@ -67,6 +70,7 @@ export default function ProfilePage() {
       if (data) {
         setFullName(data.full_name || '');
         setAvatarUrl(data.avatar_url || null);
+        setUsername(data.username || '');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -120,12 +124,41 @@ export default function ProfilePage() {
     setMessage(null);
 
     try {
+      // Validate username
+      if (username) {
+        const usernameRegex = /^[a-z0-9-]+$/;
+        if (!usernameRegex.test(username)) {
+          setUsernameError('Username can only contain lowercase letters, numbers, and hyphens');
+          setSaving(false);
+          return;
+        }
+        if (username.length < 3) {
+          setUsernameError('Username must be at least 3 characters');
+          setSaving(false);
+          return;
+        }
+        // Check if username is taken
+        const { data: existing } = await supabase
+          .from('user_profiles')
+          .select('id')
+          .eq('username', username)
+          .neq('id', user.id)
+          .single();
+        if (existing) {
+          setUsernameError('This username is already taken');
+          setSaving(false);
+          return;
+        }
+      }
+      setUsernameError('');
+
       const { error: profileError } = await supabase
         .from('user_profiles')
         .upsert({
           id: user.id,
           email: email,
           full_name: fullName,
+          username: username || null,
           updated_at: new Date().toISOString(),
         });
 
@@ -268,6 +301,42 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="space-y-2">
+                      <Label htmlFor="username" className="text-sm">
+                        <Globe className="w-3.5 h-3.5 inline mr-2" />
+                        Username
+                      </Label>
+                      <Input
+                        id="username"
+                        value={username}
+                        onChange={(e) => {
+                          setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+                          setUsernameError('');
+                        }}
+                        placeholder="your-username"
+                      />
+                      {usernameError && (
+                        <p className="text-xs text-red-500">{usernameError}</p>
+                      )}
+                      {username && !usernameError && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>Your blog URL:</span>
+                          <code className="bg-muted px-2 py-0.5 rounded">{username}.writine.com</code>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(`${username}.writine.com`);
+                              setCopied(true);
+                              setTimeout(() => setCopied(false), 2000);
+                            }}
+                            className="hover:text-[#918df6]"
+                          >
+                            <Copy className={`w-3 h-3 ${copied ? 'text-green-600' : ''}`} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
                       <Label htmlFor="email" className="text-sm">
                         <Mail className="w-3.5 h-3.5 inline mr-2" />
                         Email
@@ -339,6 +408,19 @@ export default function ProfilePage() {
                     ) : (
                       'Save Changes'
                     )}
+                  </Button>
+
+                  {/* Logout Button */}
+                  <Button 
+                    onClick={async () => {
+                      await signOut();
+                      router.push('/login');
+                    }}
+                    variant="outline"
+                    className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Log out
                   </Button>
                 </div>
               )}

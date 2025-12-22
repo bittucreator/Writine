@@ -55,6 +55,7 @@ import {
   Upload,
   Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const lowlight = createLowlight(common);
 
@@ -385,13 +386,13 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
+      toast.error('Please select an image file');
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image must be less than 5MB');
+      toast.error('Image must be less than 5MB');
       return;
     }
 
@@ -416,7 +417,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
       setShowSlashMenu(false);
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image. Please try again.');
+      toast.error('Failed to upload image. Please try again.');
     } finally {
       setUploadingImage(false);
       if (imageInputRef.current) {
@@ -431,13 +432,13 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
 
     // Validate file type
     if (!file.type.startsWith('video/')) {
-      alert('Please select a video file');
+      toast.error('Please select a video file');
       return;
     }
 
     // Validate file size (max 50MB)
     if (file.size > 50 * 1024 * 1024) {
-      alert('Video must be less than 50MB');
+      toast.error('Video must be less than 50MB');
       return;
     }
 
@@ -465,7 +466,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
       setShowSlashMenu(false);
     } catch (error) {
       console.error('Error uploading video:', error);
-      alert('Failed to upload video. Please try again.');
+      toast.error('Failed to upload video. Please try again.');
     } finally {
       setUploadingVideo(false);
       if (videoInputRef.current) {

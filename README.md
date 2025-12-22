@@ -67,36 +67,28 @@ Create SEO-optimized blog content with AI. Built with Next.js, Supabase, and Tip
 - **Database**: Supabase (PostgreSQL)
 - **Auth**: Supabase Auth
 - **AI**: Azure OpenAI / OpenAI
-- **Hosting**: Cloudflare Pages
+- **Hosting**: Vercel
 
-## ☁️ Deploy to Cloudflare Pages
+## ▲ Deploy to Vercel
 
-### Option 1: GitHub Actions (Automatic)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/bittucreator/Writine&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,AZURE_OPENAI_API_KEY,AZURE_OPENAI_ENDPOINT)
 
-1. Go to your GitHub repo → Settings → Secrets and variables → Actions
-2. Add these secrets:
-   - `CLOUDFLARE_API_TOKEN` - Create at [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) with "Edit Cloudflare Pages" permission
-   - `CLOUDFLARE_ACCOUNT_ID` - Found in Cloudflare dashboard URL
-   - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase URL
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon key
+### Manual Setup
 
-3. Push to `main` branch - it auto-deploys!
-
-### Option 2: Manual Deploy
-
-```bash
-# Build the app
-npm run build
-
-# Deploy to Cloudflare Pages
-npm run deploy
-```
+1. Go to [vercel.com](https://vercel.com) and sign in with GitHub
+2. Click **Add New Project** → Import `Writine`
+3. Add environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `AZURE_OPENAI_API_KEY`
+   - `AZURE_OPENAI_ENDPOINT`
+4. Click **Deploy** 🚀
 
 ### Connect Custom Domain
 
-1. Go to Cloudflare Pages → Your project → Custom domains
+1. Go to Vercel → Your project → Settings → Domains
 2. Add `writine.com`
-3. DNS is auto-configured since domain is on Cloudflare ✅
+3. Update DNS: Add CNAME `@` → `cname.vercel-dns.com`
 
 ## 📁 Project Structure
 

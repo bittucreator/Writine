@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -174,6 +174,18 @@ function SortableOutlineItem({
 }
 
 export default function BlogEditPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground text-sm">Loading...</div>
+      </div>
+    }>
+      <BlogEditPageContent />
+    </Suspense>
+  );
+}
+
+function BlogEditPageContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const id = params?.id as string | undefined;

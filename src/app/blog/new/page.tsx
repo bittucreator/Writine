@@ -233,34 +233,32 @@ function BlogEditPageContent() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (user) {
-      if (id) {
-        loadBlog();
+    const loadBlog = async () => {
+      const { data, error } = await supabase
+        .from('blogs')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error loading blog:', error);
+        return;
       }
+
+      if (data) {
+        setTitle(data.title);
+        setContent(data.content);
+        setExcerpt(data.excerpt);
+        setSeoTitle(data.seo_title || '');
+        setSeoDescription(data.seo_description || '');
+        setSeoKeywords(data.seo_keywords || []);
+      }
+    };
+
+    if (user && id) {
+      loadBlog();
     }
   }, [id, user]);
-
-  const loadBlog = async () => {
-    const { data, error } = await supabase
-      .from('blogs')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
-
-    if (error) {
-      console.error('Error loading blog:', error);
-      return;
-    }
-
-    if (data) {
-      setTitle(data.title);
-      setContent(data.content);
-      setExcerpt(data.excerpt);
-      setSeoTitle(data.seo_title || '');
-      setSeoDescription(data.seo_description || '');
-      setSeoKeywords(data.seo_keywords || []);
-    }
-  };
 
   const handleGenerateOutline = async () => {
     if (!topic.trim()) return;

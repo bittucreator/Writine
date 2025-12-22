@@ -1,25 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { FloatingNav } from '@/components/FloatingNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 import { 
   Check, 
   Loader2,
   Sparkles,
   Zap,
-  CreditCard,
-  Receipt,
   Calendar,
-  Download,
   ExternalLink,
   AlertCircle,
+  CheckCircle,
 } from 'lucide-react';
 
 interface Plan {
@@ -30,15 +30,18 @@ interface Plan {
   features: string[];
   icon: React.ElementType;
   popular?: boolean;
+  polarProductId?: string;
 }
 
-interface Invoice {
+interface Subscription {
   id: string;
-  date: string;
-  amount: number;
-  status: 'paid' | 'pending' | 'failed';
-  invoiceUrl?: string;
+  status: string;
+  plan: string;
+  current_period_end: string | null;
+  polar_customer_id: string | null;
 }
+
+const POLAR_PRO_PRODUCT_ID = process.env.NEXT_PUBLIC_POLAR_PRO_PRODUCT_ID || '';
 
 const PLANS: Plan[] = [
   {
@@ -69,24 +72,29 @@ const PLANS: Plan[] = [
     ],
     icon: Sparkles,
     popular: true,
+    polarProductId: POLAR_PRO_PRODUCT_ID,
   },
 ];
 
-// Mock invoices for demo - will be replaced with real Stripe data
-const MOCK_INVOICES: Invoice[] = [
-  { id: 'inv_001', date: '2024-12-01', amount: 20, status: 'paid' },
-  { id: 'inv_002', date: '2024-11-01', amount: 20, status: 'paid' },
-  { id: 'inv_003', date: '2024-10-01', amount: 20, status: 'paid' },
-];
-
-export default function BillingPage() {
+function BillingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [currentPlan, setCurrentPlan] = useState<'free' | 'pro'>('free');
-  const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<{ last4: string; brand: string } | null>(null);
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [upgrading, setUpgrading] = useState(false);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const checkoutId = searchParams.get('checkout_id');
+    
+    if (success === 'true' && checkoutId) {
+      toast.success('Payment successful! Your Pro plan is now active.', {
+        description: 'Thank you for upgrading to Writine Pro!',
+      });
+      router.replace('/billing');
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -96,45 +104,52 @@ export default function BillingPage() {
 
   useEffect(() => {
     if (user) {
-      fetchBillingInfo();
+      fetchSubscription();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const fetchBillingInfo = async () => {
+  const fetchSubscription = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      // TODO: Fetch from Supabase/Stripe
-      // For now, simulate loading and check user's subscription status
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
       
-      // Mock data - replace with real API call
-      // Uncomment below to test Pro view:
-      // setCurrentPlan('pro');
-      // setSubscriptionEndDate('2025-01-22');
-      // setPaymentMethod({ last4: '4242', brand: 'Visa' });
-      // setInvoices(MOCK_INVOICES);
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching subscription:', error);
+      }
+      
+      setSubscription(data);
     } catch (error) {
-      console.error('Error fetching billing info:', error);
+      console.error('Error fetching subscription:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectPlan = (planId: string) => {
-    // TODO: Implement Stripe checkout
-    console.log('Selected plan:', planId);
-    alert(`Plan upgrade coming soon! Selected: ${planId}`);
+  const handleUpgrade = async (plan: Plan) => {
+    if (!plan.polarProductId) {
+      toast.error('Product not configured. Please contact support.');
+      return;
+    }
+
+    setUpgrading(true);
+    try {
+      const checkoutUrl = `/api/checkout?products=${plan.polarProductId}&customerEmail=${encodeURIComponent(user?.email || '')}`;
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      console.error('Error starting checkout:', error);
+      toast.error('Failed to start checkout. Please try again.');
+      setUpgrading(false);
+    }
   };
 
   const handleManageSubscription = () => {
-    // TODO: Redirect to Stripe Customer Portal
-    alert('Stripe Customer Portal coming soon!');
-  };
-
-  const handleUpdatePaymentMethod = () => {
-    // TODO: Open Stripe payment method update
-    alert('Update payment method coming soon!');
+    window.open('https://polar.sh/settings', '_blank');
   };
 
   const formatDate = (dateStr: string) => {
@@ -145,6 +160,8 @@ export default function BillingPage() {
     });
   };
 
+  const currentPlan = subscription?.status === 'active' ? 'pro' : 'free';
+
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
@@ -153,10 +170,16 @@ export default function BillingPage() {
     );
   }
 
-  // Pro user view
   const renderProBilling = () => (
     <div className="space-y-6">
-      {/* Current Plan Card */}
+      <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
+        <CheckCircle className="w-6 h-6 text-green-600" />
+        <div>
+          <p className="font-semibold text-green-800">You&apos;re on the Pro Plan!</p>
+          <p className="text-sm text-green-600">Enjoy unlimited access to all features</p>
+        </div>
+      </div>
+
       <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
@@ -175,10 +198,10 @@ export default function BillingPage() {
             </div>
           </div>
           
-          {subscriptionEndDate && (
+          {subscription?.current_period_end && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4" />
-              <span>Next billing date: {formatDate(subscriptionEndDate)}</span>
+              <span>Next billing date: {formatDate(subscription.current_period_end)}</span>
             </div>
           )}
 
@@ -187,162 +210,115 @@ export default function BillingPage() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleManageSubscription}>
               <ExternalLink className="w-4 h-4 mr-2" />
-              Manage Subscription
-            </Button>
-            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
-              Cancel Plan
+              Manage on Polar
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Payment Method Card */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg">Payment Method</CardTitle>
+          <CardTitle className="text-lg">What&apos;s Included</CardTitle>
         </CardHeader>
         <CardContent>
-          {paymentMethod ? (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-slate-600" />
-                </div>
-                <div>
-                  <p className="font-medium">{paymentMethod.brand} •••• {paymentMethod.last4}</p>
-                  <p className="text-sm text-muted-foreground">Expires 12/25</p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm" onClick={handleUpdatePaymentMethod}>
-                Update
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-amber-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-amber-800">No payment method on file</p>
-                <p className="text-xs text-amber-600">Add a payment method to continue your subscription</p>
-              </div>
-              <Button size="sm" className="bg-[#918df6] hover:bg-[#7b77e0]" onClick={handleUpdatePaymentMethod}>
-                Add Card
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Invoice History Card */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg">Invoice History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {invoices.length > 0 ? (
-            <div className="space-y-3">
-              {invoices.map((invoice) => (
-                <div key={invoice.id} className="flex items-center justify-between py-3 border-b last:border-0">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
-                      <Receipt className="w-4 h-4 text-slate-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{formatDate(invoice.date)}</p>
-                      <p className="text-xs text-muted-foreground">Pro Plan</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <p className="text-sm font-medium">${invoice.amount.toFixed(2)}</p>
-                      <Badge 
-                        variant="outline" 
-                        className={`text-xs ${
-                          invoice.status === 'paid' 
-                            ? 'text-green-600 border-green-200 bg-green-50' 
-                            : invoice.status === 'pending'
-                            ? 'text-amber-600 border-amber-200 bg-amber-50'
-                            : 'text-red-600 border-red-200 bg-red-50'
-                        }`}
-                      >
-                        {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-                      </Badge>
-                    </div>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Download className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6 text-muted-foreground">
-              <Receipt className="w-10 h-10 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No invoices yet</p>
-            </div>
-          )}
+          <ul className="space-y-3">
+            {PLANS.find(p => p.id === 'pro')?.features.map((feature, idx) => (
+              <li key={idx} className="flex items-center gap-3 text-sm">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
     </div>
   );
 
-  // Free user view - show plans
   const renderFreeBilling = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {PLANS.map((plan) => (
-        <Card
-          key={plan.id}
-          className={`relative transition-all hover:border-[#918df6] ${
-            plan.popular ? 'border-[#918df6] ring-1 ring-[#918df6]' : ''
-          }`}
-        >
-          {plan.popular && (
-            <Badge className="absolute -top-2 right-4 bg-[#918df6]">
-              Recommended
-            </Badge>
-          )}
-          
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#918df6]/10 flex items-center justify-center">
-                <plan.icon className="w-5 h-5 text-[#918df6]" />
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+        <AlertCircle className="w-6 h-6 text-amber-600" />
+        <div>
+          <p className="font-semibold text-amber-800">You&apos;re on the Free Trial</p>
+          <p className="text-sm text-amber-600">Upgrade to Pro for unlimited access</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {PLANS.map((plan) => (
+          <Card
+            key={plan.id}
+            className={`relative transition-all hover:border-[#918df6] ${
+              plan.popular ? 'border-[#918df6] ring-1 ring-[#918df6]' : ''
+            }`}
+          >
+            {plan.popular && (
+              <Badge className="absolute -top-2 right-4 bg-[#918df6]">
+                Recommended
+              </Badge>
+            )}
+            
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#918df6]/10 flex items-center justify-center">
+                  <plan.icon className="w-5 h-5 text-[#918df6]" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">{plan.name}</h4>
+                  <p className="text-sm text-muted-foreground">{plan.description}</p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-semibold">{plan.name}</h4>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+
+              <div className="mb-6">
+                {plan.price === 0 ? (
+                  <p className="text-3xl font-bold">Free</p>
+                ) : (
+                  <p className="text-3xl font-bold">
+                    ${plan.price}
+                    <span className="text-base font-normal text-muted-foreground">/mo</span>
+                  </p>
+                )}
               </div>
-            </div>
 
-            <div className="mb-6">
-              {plan.price === 0 ? (
-                <p className="text-3xl font-bold">Free</p>
-              ) : (
-                <p className="text-3xl font-bold">
-                  ${plan.price}
-                  <span className="text-base font-normal text-muted-foreground">/mo</span>
-                </p>
-              )}
-            </div>
+              <ul className="space-y-2 mb-6">
+                {plan.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-center gap-2 text-sm">
+                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
 
-            <ul className="space-y-2 mb-6">
-              {plan.features.map((feature, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-sm">
-                  <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
+              <Button
+                variant={plan.id === 'free' ? 'outline' : 'default'}
+                className={`w-full ${plan.id !== 'free' ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}`}
+                onClick={() => plan.id !== 'free' && handleUpgrade(plan)}
+                disabled={plan.id === 'free' || upgrading}
+              >
+                {upgrading && plan.id !== 'free' ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : plan.id === 'free' ? (
+                  'Current Plan'
+                ) : (
+                  'Upgrade to Pro'
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-            <Button
-              variant={currentPlan === plan.id ? 'outline' : 'default'}
-              className={`w-full ${currentPlan !== plan.id ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}`}
-              onClick={() => handleSelectPlan(plan.id)}
-              disabled={currentPlan === plan.id}
-            >
-              {currentPlan === plan.id ? 'Current Plan' : plan.price === 0 ? 'Start Free Trial' : 'Upgrade to Pro'}
-            </Button>
-          </CardContent>
-        </Card>
-      ))}
+      <div className="text-center space-y-2 pt-4">
+        <p className="text-sm text-muted-foreground">
+          🔒 Secure payment powered by Polar
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Cancel anytime • No hidden fees • Instant access
+        </p>
+      </div>
     </div>
   );
 
@@ -350,7 +326,6 @@ export default function BillingPage() {
     <div className="min-h-screen bg-[#fafafa]">
       <FloatingNav />
       <div className="flex flex-col items-center pt-16 px-6 pb-24">
-        {/* Logo */}
         <div className="mb-10">
           <Image
             src="/writine-dark.svg"
@@ -360,7 +335,6 @@ export default function BillingPage() {
           />
         </div>
 
-        {/* Title */}
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold mb-2">
             {currentPlan === 'pro' ? 'Billing & Subscription' : 'Billing & Plans'}
@@ -372,7 +346,6 @@ export default function BillingPage() {
           </p>
         </div>
 
-        {/* Content */}
         <div className="w-full max-w-2xl">
           {loading ? (
             <div className="flex items-center justify-center py-8">
@@ -386,5 +359,17 @@ export default function BillingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#918df6]" />
+      </div>
+    }>
+      <BillingContent />
+    </Suspense>
   );
 }

@@ -172,20 +172,31 @@ export default function DomainsPage() {
       // Method 1: Check CNAME record (for subdomains)
       const cnameResponse = await fetch(`https://dns.google/resolve?name=${domain.domain}&type=CNAME`);
       const cnameData = await cnameResponse.json();
+      console.log('CNAME data:', cnameData);
       const hasCname = cnameData.Answer?.some((record: { data: string }) => 
-        record.data?.includes('writine.com')
+        record.data?.toLowerCase().includes('writine.com')
       );
 
       // Method 2: Check TXT record for verification (works for root domains)
       // User should add: TXT record with value "writine-verify"
       const txtResponse = await fetch(`https://dns.google/resolve?name=${domain.domain}&type=TXT`);
       const txtData = await txtResponse.json();
-      console.log('TXT data:', txtData);
-      const hasTxt = txtData.Answer?.some((record: { data: string }) => {
-        // Google DNS returns TXT records with quotes, so strip them for comparison
-        const value = record.data?.replace(/"/g, '').trim();
-        return value === 'writine-verify' || value?.includes('writine-verify');
-      });
+      console.log('TXT data:', JSON.stringify(txtData, null, 2));
+      
+      let hasTxt = false;
+      if (txtData.Answer && Array.isArray(txtData.Answer)) {
+        for (const record of txtData.Answer) {
+          console.log('Checking record:', record.data);
+          // The data can come with or without quotes
+          const value = String(record.data || '').replace(/^"|"$/g, '').replace(/\\"/g, '"').trim().toLowerCase();
+          console.log('Cleaned value:', value);
+          if (value.includes('writine-verify')) {
+            hasTxt = true;
+            break;
+          }
+        }
+      }
+      console.log('hasCname:', hasCname, 'hasTxt:', hasTxt);
 
       // Method 3: Check if domain resolves and we can reach it
       // For now, if they have CNAME or TXT, consider it verified

@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Writine - AI Blog Writing Platform
+
+Create SEO-optimized blog content with AI. Built with Next.js, Supabase, and TipTap.
 
 ## Getting Started
 

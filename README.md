@@ -1,10 +1,105 @@
 # Writine - AI Blog Writing Platform
 
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+
 Create SEO-optimized blog content with AI. Built with Next.js, Supabase, and TipTap.
 
-## Getting Started
+![Writine Screenshot](public/screenshot.png)
 
-First, run the development server:
+## ✨ Features
+
+- **AI-Powered Writing** - Generate blog posts with customizable tone, length, and style
+- **Rich Text Editor** - Full-featured TipTap editor with slash commands, tables, code blocks, and more
+- **SEO Analysis** - Real-time SEO scoring and suggestions
+- **Custom Domains** - Publish blogs to your own domain
+- **Templates** - Start with pre-built templates for common blog types
+- **Credits System** - Built-in credit management for AI usage
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+- Supabase account
+- Azure OpenAI or OpenAI API key
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/bittucreator/Writine.git
+   cd Writine
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Fill in your credentials in `.env.local`
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000)
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Editor**: TipTap
+- **Database**: Supabase (PostgreSQL)
+- **Auth**: Supabase Auth
+- **AI**: Azure OpenAI / OpenAI
+
+## 📁 Project Structure
+
+```
+src/
+├── app/              # Next.js App Router pages
+├── components/       # React components
+│   └── ui/          # shadcn/ui components
+├── contexts/        # React contexts
+├── hooks/           # Custom hooks
+└── lib/             # Utilities and configs
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 💜 Acknowledgments
+
+- [Next.js](https://nextjs.org/)
+- [Supabase](https://supabase.com/)
+- [TipTap](https://tiptap.dev/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
+---
+
+Made with 💜 by [Bittu](https://github.com/bittucreator)
 
 ```bash
 npm run dev

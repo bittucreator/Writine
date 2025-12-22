@@ -29,23 +29,28 @@ Create SEO-optimized blog content with AI. Built with Next.js, Supabase, and Tip
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/bittucreator/Writine.git
    cd Writine
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env.local
    ```
+
    Fill in your credentials in `.env.local`
 
 4. Run the development server:
+
    ```bash
    npm run dev
    ```
@@ -62,6 +67,36 @@ Create SEO-optimized blog content with AI. Built with Next.js, Supabase, and Tip
 - **Database**: Supabase (PostgreSQL)
 - **Auth**: Supabase Auth
 - **AI**: Azure OpenAI / OpenAI
+- **Hosting**: Cloudflare Pages
+
+## ☁️ Deploy to Cloudflare Pages
+
+### Option 1: GitHub Actions (Automatic)
+
+1. Go to your GitHub repo → Settings → Secrets and variables → Actions
+2. Add these secrets:
+   - `CLOUDFLARE_API_TOKEN` - Create at [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) with "Edit Cloudflare Pages" permission
+   - `CLOUDFLARE_ACCOUNT_ID` - Found in Cloudflare dashboard URL
+   - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon key
+
+3. Push to `main` branch - it auto-deploys!
+
+### Option 2: Manual Deploy
+
+```bash
+# Build the app
+npm run build
+
+# Deploy to Cloudflare Pages
+npm run deploy
+```
+
+### Connect Custom Domain
+
+1. Go to Cloudflare Pages → Your project → Custom domains
+2. Add `writine.com`
+3. DNS is auto-configured since domain is on Cloudflare ✅
 
 ## 📁 Project Structure
 

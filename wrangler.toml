@@ -1,0 +1,10 @@
+# Cloudflare Pages configuration
+name = "writine"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[vars]
+# Environment variables (set secrets in Cloudflare dashboard)
+# NEXT_PUBLIC_SUPABASE_URL = ""
+# NEXT_PUBLIC_SUPABASE_ANON_KEY = ""

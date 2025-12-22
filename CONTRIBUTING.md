@@ -6,21 +6,28 @@ Thank you for your interest in contributing to Writine! 🎉
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/Writine.git
    cd Writine
    ```
+
 3. **Install dependencies**:
+
    ```bash
    npm install
    ```
+
 4. **Set up environment variables**:
+
    ```bash
    cp .env.example .env.local
    ```
+
    Fill in your Supabase and AI API credentials.
 
 5. **Start the development server**:
+
    ```bash
    npm run dev
    ```
@@ -28,6 +35,7 @@ Thank you for your interest in contributing to Writine! 🎉
 ## Development Workflow
 
 1. Create a new branch for your feature/fix:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -35,6 +43,7 @@ Thank you for your interest in contributing to Writine! 🎉
 2. Make your changes and test locally
 
 3. Commit with clear, descriptive messages:
+
    ```bash
    git commit -m "feat: add new feature"
    ```
@@ -70,6 +79,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 ## Reporting Issues
 
 When reporting issues, please include:
+
 - A clear description of the problem
 - Steps to reproduce
 - Expected vs actual behavior

@@ -42,16 +42,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Save,
   Sparkles,
-  Send,
   ArrowLeft,
   ArrowRight,
   Loader2,
   CheckCircle,
   AlertCircle,
-  Wand2,
-  List,
   Globe,
   Eye,
   PanelRightClose,

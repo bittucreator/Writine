@@ -8,7 +8,7 @@ Create SEO-optimized blog content with AI. Built with Next.js, Supabase, and Tip
 
 ![Writine Screenshot](public/screenshot.png)
 
-## ✨ Features
+## Features
 
 - **AI-Powered Writing** - Generate blog posts with customizable tone, length, and style
 - **Rich Text Editor** - Full-featured TipTap editor with slash commands, tables, code blocks, and more
@@ -17,7 +17,7 @@ Create SEO-optimized blog content with AI. Built with Next.js, Supabase, and Tip
 - **Templates** - Start with pre-built templates for common blog types
 - **Credits System** - Built-in credit management for AI usage
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -90,9 +90,9 @@ Create SEO-optimized blog content with AI. Built with Next.js, Supabase, and Tip
 2. Add `writine.com`
 3. Update DNS: Add CNAME `@` → `cname.vercel-dns.com`
 
-## 📁 Project Structure
+## Project Structure
 
-```
+```text
 src/
 ├── app/              # Next.js App Router pages
 ├── components/       # React components
@@ -102,7 +102,7 @@ src/
 └── lib/             # Utilities and configs
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
 
@@ -112,11 +112,11 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 💜 Acknowledgments
+## Acknowledgments
 
 - [Next.js](https://nextjs.org/)
 - [Supabase](https://supabase.com/)
@@ -126,7 +126,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Made with 💜 by [Bittu](https://github.com/bittucreator)
+Made with by [Venkat](https://github.com/bittucreator)
 
 ```bash
 npm run dev

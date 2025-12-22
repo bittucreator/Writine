@@ -408,7 +408,7 @@ export default function DashboardPage() {
               <h3 className="text-sm font-medium mb-1">
                 {statusFilter !== 'all' ? 'No blogs found' : 'No blogs yet'}
               </h3>
-              <p className="text-xs text-muted-foreground mb-4 text-center max-w-[280px]">
+              <p className="text-xs text-muted-foreground mb-4 text-center max-w-70">
                 {statusFilter !== 'all' 
                   ? `No ${statusFilter} blogs found.`
                   : 'Create your first blog to get started with AI-powered content generation.'

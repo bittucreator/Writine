@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase';
 import { FloatingNav } from '@/components/FloatingNav';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { 
   Check, 

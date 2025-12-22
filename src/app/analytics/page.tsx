@@ -192,7 +192,7 @@ export default function AnalyticsPage() {
                     <CardDescription className="text-xs">Daily page views</CardDescription>
                   </CardHeader>
                   <CardContent className="pl-2">
-                    <div className="h-[300px]">
+                    <div className="h-75">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={weeklyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                           <defs>
@@ -232,7 +232,7 @@ export default function AnalyticsPage() {
                     <CardDescription className="text-xs">Published vs Drafts</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-[200px]">
+                    <div className="h-50">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -280,7 +280,7 @@ export default function AnalyticsPage() {
                   <CardDescription className="text-xs">Views over time</CardDescription>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <div className="h-[300px]">
+                  <div className="h-75">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <defs>

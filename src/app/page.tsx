@@ -5,10 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import {
   Sparkles,
-  ArrowRight,
   Check,
   Globe,
   Search,
@@ -17,7 +21,6 @@ import {
   BarChart3,
   Github,
   Twitter,
-  Play,
   Wand2,
 } from 'lucide-react';
 
@@ -108,10 +111,10 @@ export default function LandingPage() {
 
           <div className="flex items-center gap-3">
             <Link href="/login">
-              <Button variant="ghost" size="sm">Log in</Button>
+              <Button variant="ghost" size="sm" className="rounded-full">Log in</Button>
             </Link>
             <Link href="/signup">
-              <Button size="sm" className="bg-[#918df6] hover:bg-[#7b77e0]">
+              <Button size="sm" className="bg-[#918df6] hover:bg-[#7b77e0] rounded-full">
                 Get Started
               </Button>
             </Link>
@@ -120,85 +123,54 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
+      <section className="pt-24 pb-20 px-6">
         <div className="max-w-6xl mx-auto text-center">
           <Badge className="mb-6 bg-[#918df6]/10 text-[#918df6] hover:bg-[#918df6]/20 border-0">
-            <Sparkles className="w-3 h-3 mr-1" />
-            AI-Powered Blog Writing
+            From idea to published in minutes
           </Badge>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight">
-            Write blogs that
+          <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
+            Write, publish, grow
             <br />
-            <span className="text-[#918df6]">rank & convert</span>
+            your blog with AI
           </h1>
 
           <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Create SEO-optimized blog content in minutes with AI. 
-            From idea to published—all in one beautiful editor.
+            Create SEO-optimized blog content in minutes. From idea to
+            <br className="hidden md:block" />
+            published—all in one beautiful editor.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <Link href="/signup">
-              <Button size="lg" className="bg-[#918df6] hover:bg-[#7b77e0] h-12 px-8 text-base">
+              <Button size="lg" className="bg-[#918df6] hover:bg-[#7b77e0] h-12 px-8 text-base rounded-full">
                 Start Writing Free
-                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="h-12 px-8 text-base">
-              <Play className="w-5 h-5 mr-2" />
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="h-12 px-8 text-base border-0 shadow-none rounded-full"
+              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+            >
               Watch Demo
             </Button>
           </div>
 
-          <p className="text-sm text-slate-500 mb-16">
-            No credit card required · Free plan available · Cancel anytime
-          </p>
-
           {/* Hero Image/Preview */}
-          <div className="relative max-w-5xl mx-auto">
-            <div className="absolute inset-0 bg-linear-to-r from-[#918df6]/20 to-purple-300/20 rounded-2xl blur-3xl" />
-            <div className="relative bg-white rounded-2xl border shadow-2xl overflow-hidden">
-              <div className="bg-slate-100 px-4 py-3 flex items-center gap-2 border-b">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                </div>
-                <div className="flex-1 flex justify-center">
-                  <div className="bg-white rounded-md px-4 py-1 text-xs text-slate-500 border">
-                    writine.com/blog/new
-                  </div>
-                </div>
-              </div>
-              <div className="p-8 bg-linear-to-b from-white to-slate-50">
-                <div className="flex gap-6">
-                  {/* Sidebar Preview */}
-                  <div className="hidden md:block w-48 space-y-3">
-                    <div className="h-8 bg-slate-100 rounded-lg" />
-                    <div className="h-6 bg-slate-100 rounded-lg w-3/4" />
-                    <div className="h-6 bg-slate-100 rounded-lg w-1/2" />
-                    <div className="h-32 bg-[#918df6]/10 rounded-lg border-2 border-dashed border-[#918df6]/30" />
-                  </div>
-                  {/* Editor Preview */}
-                  <div className="flex-1 space-y-4">
-                    <div className="h-10 bg-slate-100 rounded-lg w-3/4" />
-                    <div className="h-4 bg-slate-100 rounded w-full" />
-                    <div className="h-4 bg-slate-100 rounded w-5/6" />
-                    <div className="h-4 bg-slate-100 rounded w-4/5" />
-                    <div className="h-20 bg-[#918df6]/5 rounded-lg border-l-4 border-[#918df6] p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="w-4 h-4 text-[#918df6]" />
-                        <span className="text-sm text-[#918df6] font-medium">AI is generating...</span>
-                      </div>
-                      <div className="space-y-1.5">
-                        <div className="h-2 bg-[#918df6]/20 rounded w-full animate-pulse" />
-                        <div className="h-2 bg-[#918df6]/20 rounded w-3/4 animate-pulse" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="max-w-5xl mx-auto">
+            <div 
+              className="bg-white rounded-2xl overflow-hidden" 
+              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+            >
+              <Image 
+                src="/heroimage.png" 
+                alt="Writine Dashboard" 
+                width={1200} 
+                height={800} 
+                className="w-full h-auto"
+                priority
+              />
             </div>
           </div>
         </div>
@@ -220,15 +192,17 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {FEATURES.map((feature) => (
-              <Card key={feature.title} className="bg-white border hover:shadow-lg transition-shadow group">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-[#918df6]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#918df6] transition-colors">
-                    <feature.icon className="w-6 h-6 text-[#918df6] group-hover:text-white transition-colors" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">{feature.title}</h3>
-                  <p className="text-slate-600">{feature.description}</p>
-                </CardContent>
-              </Card>
+              <div 
+                key={feature.title} 
+                className="bg-white rounded-xl p-6 transition-all hover:bg-slate-50/50 group"
+                style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+              >
+                <div className="w-12 h-12 bg-[#918df6]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#918df6] transition-colors">
+                  <feature.icon className="w-6 h-6 text-[#918df6] group-hover:text-white transition-colors" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">{feature.title}</h3>
+                <p className="text-slate-600">{feature.description}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -282,38 +256,98 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {PRICING.map((plan) => (
-              <Card key={plan.name} className={`relative ${plan.highlighted ? 'border-2 border-[#918df6] shadow-xl scale-105' : 'border'}`}>
+              <div 
+                key={plan.name} 
+                className={`relative bg-white rounded-xl p-6 ${plan.highlighted ? 'scale-105' : ''}`}
+                style={{ border: plan.highlighted ? '2px solid #918df6' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
+              >
                 {plan.highlighted && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <Badge className="bg-[#918df6] text-white">Most Popular</Badge>
                   </div>
                 )}
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-slate-900 mb-2">{plan.name}</h3>
-                  <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-4xl font-bold text-slate-900">{plan.price}</span>
-                    <span className="text-slate-500">{plan.period}</span>
-                  </div>
-                  <p className="text-slate-600 mb-6">{plan.description}</p>
-                  
-                  <Link href="/signup">
-                    <Button className={`w-full mb-6 ${plan.highlighted ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}`} variant={plan.highlighted ? 'default' : 'outline'}>
-                      {plan.cta}
-                    </Button>
-                  </Link>
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">{plan.name}</h3>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-4xl font-bold text-slate-900">{plan.price}</span>
+                  <span className="text-slate-500">{plan.period}</span>
+                </div>
+                <p className="text-slate-600 mb-6">{plan.description}</p>
+                
+                <Link href="/signup">
+                  <Button className={`w-full mb-6 rounded-full ${plan.highlighted ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}`} variant={plan.highlighted ? 'default' : 'outline'}>
+                    {plan.cta}
+                  </Button>
+                </Link>
 
-                  <ul className="space-y-3">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
-                        <Check className="w-4 h-4 text-green-500 shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+                <ul className="space-y-3">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2 text-sm text-slate-600">
+                      <Check className="w-4 h-4 text-green-500 shrink-0" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-[#918df6]/10 text-[#918df6] border-0">FAQ</Badge>
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+              Frequently asked questions
+            </h2>
+            <p className="text-lg text-slate-600">
+              Everything you need to know about Writine
+            </p>
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-3">
+            {[
+              {
+                question: 'How does the AI blog generation work?',
+                answer: 'Simply enter your topic, keywords, and preferred tone. Our AI analyzes top-performing content and generates a comprehensive, SEO-optimized blog post tailored to your specifications.',
+              },
+              {
+                question: 'Can I edit the AI-generated content?',
+                answer: 'Absolutely! All generated content is fully editable in our rich text editor. You can modify, add, or remove any section to match your voice and style.',
+              },
+              {
+                question: 'What makes Writine different from other AI writers?',
+                answer: 'Writine combines AI generation with real-time SEO analysis, custom domain publishing, and a beautiful editor—all in one platform. No need for multiple tools.',
+              },
+              {
+                question: 'Is there a free trial?',
+                answer: 'Yes! You get a 3-day free trial with full access to all features. No credit card required to start.',
+              },
+              {
+                question: 'Can I use my own domain?',
+                answer: 'Yes, Pro users can connect custom domains. We handle SSL certificates and CDN automatically for fast, secure delivery.',
+              },
+              {
+                question: 'How do I cancel my subscription?',
+                answer: 'You can cancel anytime from your billing settings. Your access continues until the end of your billing period.',
+              },
+            ].map((faq, index) => (
+              <AccordionItem 
+                key={index} 
+                value={`item-${index}`}
+                className="bg-white rounded-xl px-5 border-0"
+                style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+              >
+                <AccordionTrigger className="text-slate-900 font-semibold hover:no-underline py-5">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-slate-600 pb-5">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </section>
 
@@ -329,14 +363,17 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/signup">
-              <Button size="lg" className="bg-[#918df6] text-white hover:bg-[#7d79e0] h-12 px-8">
+              <Button size="lg" className="bg-[#918df6] text-white hover:bg-[#7d79e0] h-12 px-8 rounded-full">
                 Get Started Free
-                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
             <Link href="https://github.com/bittucreator/Writine" target="_blank">
-              <Button size="lg" variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-50 h-12 px-8">
-                <Github className="w-5 h-5 mr-2" />
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-slate-700 hover:bg-slate-50 h-12 px-8 border-0 shadow-none rounded-full"
+                style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+              >
                 Star on GitHub
               </Button>
             </Link>

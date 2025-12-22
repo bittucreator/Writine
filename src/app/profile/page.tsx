@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Mail, Loader2, Lock, Pencil, CheckCircle, LogOut, Globe, Copy } from 'lucide-react';
+import { Loader2, Pencil, CheckCircle, Copy } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();

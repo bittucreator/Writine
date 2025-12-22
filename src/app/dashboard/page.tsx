@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { FloatingNav } from '@/components/FloatingNav';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -58,7 +58,7 @@ type SortOrder = 'asc' | 'desc';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,25 +120,26 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      // Fetch credits
-      const { data: creditsData } = await supabase
-        .from('credits_balance')
-        .select('balance')
-        .eq('user_id', user!.id)
-        .single();
+      const accessToken = session?.access_token;
       
-      if (creditsData) {
-        setCredits(creditsData.balance);
+      // Fetch credits
+      const creditsData = await db.get('credits_balance', {
+        select: 'balance',
+        filters: { user_id: user!.id },
+        accessToken,
+      });
+      
+      if (creditsData && creditsData.length > 0) {
+        setCredits(creditsData[0].balance);
       }
 
       // Fetch blogs
-      const { data: blogsData, error } = await supabase
-        .from('blogs')
-        .select('id, title, excerpt, status, created_at, updated_at')
-        .eq('user_id', user!.id)
-        .order('updated_at', { ascending: false });
-      
-      if (error) throw error;
+      const blogsData = await db.get('blogs', {
+        select: 'id, title, excerpt, status, created_at, updated_at',
+        filters: { user_id: user!.id },
+        order: 'updated_at:desc',
+        accessToken,
+      });
       
       if (blogsData) {
         setBlogs(blogsData);
@@ -184,12 +185,7 @@ export default function DashboardPage() {
 
   const handleDelete = async (blog: Blog) => {
     try {
-      const { error } = await supabase
-        .from('blogs')
-        .delete()
-        .eq('id', blog.id);
-      
-      if (error) throw error;
+      await db.delete('blogs', blog.id, session?.access_token);
       
       setBlogs(blogs.filter(b => b.id !== blog.id));
       setBlogCounts(prev => ({
@@ -206,12 +202,11 @@ export default function DashboardPage() {
 
   const handleBulkDelete = async () => {
     try {
-      const { error } = await supabase
-        .from('blogs')
-        .delete()
-        .in('id', Array.from(selectedIds));
-      
-      if (error) throw error;
+      // Delete each blog individually via proxy
+      const deletePromises = Array.from(selectedIds).map(id => 
+        db.delete('blogs', id, session?.access_token)
+      );
+      await Promise.all(deletePromises);
       
       const deletedBlogs = blogs.filter(b => selectedIds.has(b.id));
       const deletedDrafts = deletedBlogs.filter(b => b.status === 'draft').length;
@@ -232,12 +227,7 @@ export default function DashboardPage() {
 
   const handleStatusChange = async (blog: Blog, newStatus: 'draft' | 'published') => {
     try {
-      const { error } = await supabase
-        .from('blogs')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', blog.id);
-      
-      if (error) throw error;
+      await db.update('blogs', blog.id, { status: newStatus, updated_at: new Date().toISOString() }, session?.access_token);
       
       setBlogs(blogs.map(b => 
         b.id === blog.id ? { ...b, status: newStatus, updated_at: new Date().toISOString() } : b
@@ -259,13 +249,15 @@ export default function DashboardPage() {
   const handleDuplicate = async (blog: Blog) => {
     try {
       // Fetch full blog content
-      const { data: fullBlog, error: fetchError } = await supabase
-        .from('blogs')
-        .select('*')
-        .eq('id', blog.id)
-        .single();
+      const fullBlogData = await db.get('blogs', {
+        select: '*',
+        filters: { id: blog.id },
+        accessToken: session?.access_token,
+      });
       
-      if (fetchError) throw fetchError;
+      if (!fullBlogData || fullBlogData.length === 0) throw new Error('Blog not found');
+      
+      const fullBlog = fullBlogData[0];
       
       // Only copy fields that exist - exclude id, created_at, updated_at, slug
       const { id, created_at, updated_at, slug, ...blogData } = fullBlog;
@@ -277,17 +269,13 @@ export default function DashboardPage() {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '') + '-' + Date.now();
       
-      const { error: insertError } = await supabase
-        .from('blogs')
-        .insert({
-          ...blogData,
-          user_id: user!.id,
-          title: newTitle,
-          slug: newSlug,
-          status: 'draft',
-        });
-      
-      if (insertError) throw insertError;
+      await db.insert('blogs', {
+        ...blogData,
+        user_id: user!.id,
+        title: newTitle,
+        slug: newSlug,
+        status: 'draft',
+      }, session?.access_token);
       
       fetchData(); // Refresh the list
     } catch (error: unknown) {

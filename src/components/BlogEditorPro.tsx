@@ -203,12 +203,12 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
       TableRow,
       TableHeader.configure({
         HTMLAttributes: {
-          class: 'border border-slate-200 bg-slate-50 px-4 py-2 text-left font-semibold',
+          class: 'border border-slate-100 bg-slate-50 px-4 py-2 text-left font-semibold',
         },
       }),
       TableCell.configure({
         HTMLAttributes: {
-          class: 'border border-slate-200 px-4 py-2',
+          class: 'border border-slate-100 px-4 py-2',
         },
       }),
       Typography,
@@ -477,7 +477,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
 
   if (!editor) {
     return (
-      <div className="border border-slate-200 rounded-xl overflow-hidden bg-white animate-pulse">
+      <div className="border border-slate-100 rounded-xl overflow-hidden bg-white animate-pulse">
         <div className="h-14 bg-slate-100" />
         <div className="h-125 bg-slate-50" />
       </div>
@@ -485,12 +485,12 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
   }
 
   return (
-    <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm relative">
+    <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-sm relative">
       {/* Slash Command Menu */}
       {showSlashMenu && filteredSlashCommands.length > 0 && (
         <div
           ref={slashMenuRef}
-          className="absolute z-50 bg-white rounded-xl shadow-xl border border-slate-200 py-2 w-72 max-h-80 overflow-y-auto"
+          className="absolute z-50 bg-white rounded-xl shadow-xl border border-slate-100 py-2 w-72 max-h-80 overflow-y-auto"
           style={{ top: slashMenuPosition.top, left: slashMenuPosition.left }}
         >
           <div className="px-3 py-1.5 text-xs font-medium text-slate-400 uppercase tracking-wide">
@@ -522,7 +522,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
       )}
 
       {/* Toolbar */}
-      <div className="border-b border-slate-200 bg-linear-to-r from-slate-50 to-white p-2">
+      <div className="border-b border-slate-100 bg-linear-to-r from-slate-50 to-white p-2">
         <div className="flex flex-wrap items-center gap-0.5">
           {/* Text Formatting */}
           <ToolbarButton
@@ -685,7 +685,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
               <Type className="w-4 h-4" />
             </ToolbarButton>
             {showColorPicker && (
-              <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-slate-200 z-10">
+              <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-slate-100 z-10">
                 <div className="grid grid-cols-6 gap-1">
                   {COLORS.map((color) => (
                     <button
@@ -694,7 +694,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
                         editor.chain().focus().setColor(color).run();
                         setShowColorPicker(false);
                       }}
-                      className="w-6 h-6 rounded border border-slate-200 hover:scale-110 transition"
+                      className="w-6 h-6 rounded border border-slate-100 hover:scale-110 transition"
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -716,7 +716,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
               <Highlighter className="w-4 h-4" />
             </ToolbarButton>
             {showHighlightPicker && (
-              <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-slate-200 z-10">
+              <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-slate-100 z-10">
                 <div className="grid grid-cols-7 gap-1">
                   {HIGHLIGHT_COLORS.map((color) => (
                     <button
@@ -725,7 +725,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
                         editor.chain().focus().toggleHighlight({ color }).run();
                         setShowHighlightPicker(false);
                       }}
-                      className="w-6 h-6 rounded border border-slate-200 hover:scale-110 transition"
+                      className="w-6 h-6 rounded border border-slate-100 hover:scale-110 transition"
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -752,7 +752,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
               <LinkIcon className="w-4 h-4" />
             </ToolbarButton>
             {showLinkInput && (
-              <div className="absolute top-full right-0 mt-1 p-3 bg-white rounded-xl shadow-xl border border-slate-200 z-50 w-72">
+              <div className="absolute top-full right-0 mt-1 p-3 bg-white rounded-xl shadow-xl border border-slate-100 z-50 w-72">
                 <div className="flex gap-2">
                   <Input
                     type="url"
@@ -788,7 +788,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
               <ImageIcon className="w-4 h-4" />
             </ToolbarButton>
             {showImageInput && (
-              <div className="absolute top-full right-0 mt-1 p-3 bg-white rounded-xl shadow-xl border border-slate-200 z-50 w-72">
+              <div className="absolute top-full right-0 mt-1 p-3 bg-white rounded-xl shadow-xl border border-slate-100 z-50 w-72">
                 <div className="flex gap-2 mb-2">
                   <Input
                     type="url"
@@ -850,7 +850,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
               <YoutubeIcon className="w-4 h-4" />
             </ToolbarButton>
             {showVideoInput && (
-              <div className="absolute top-full right-0 mt-1 p-3 bg-white rounded-xl shadow-xl border border-slate-200 z-50 w-72">
+              <div className="absolute top-full right-0 mt-1 p-3 bg-white rounded-xl shadow-xl border border-slate-100 z-50 w-72">
                 <div className="flex gap-2 mb-2">
                   <Input
                     type="url"

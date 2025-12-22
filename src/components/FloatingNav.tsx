@@ -14,10 +14,10 @@ import {
 } from '@/components/ui/tooltip';
 import {
   LayoutDashboard,
-  Globe,
-  CreditCard,
-  Plus,
-  FileText,
+  Earth,
+  WalletCards,
+  GalleryVerticalEnd,
+  ChartColumnBig,
 } from 'lucide-react';
 
 export function FloatingNav() {
@@ -58,38 +58,31 @@ export function FloatingNav() {
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
   const navItems = [
-    { id: 'new', icon: Plus, label: 'New Blog', path: '/blog/new' },
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-    { id: 'templates', icon: FileText, label: 'Templates', path: '/templates' },
-    { id: 'domains', icon: Globe, label: 'Domains', path: '/domains' },
-    { id: 'billing', icon: CreditCard, label: 'Billing', path: '/billing' },
+    { id: 'analytics', icon: ChartColumnBig, label: 'Analytics', path: '/analytics' },
+    { id: 'templates', icon: GalleryVerticalEnd, label: 'Templates', path: '/templates' },
+    { id: 'domains', icon: Earth, label: 'Domains', path: '/domains' },
+    { id: 'billing', icon: WalletCards, label: 'Billing', path: '/billing' },
   ];
 
   return (
     <TooltipProvider delayDuration={0}>
       {/* Floating Bottom Nav */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <div className="flex items-center gap-1 px-2 py-2 bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-lg shadow-slate-200/50">
+        <div 
+          className="flex items-center gap-1 px-2 py-2 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-slate-200/50"
+          style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+        >
           {/* Logo */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="flex items-center justify-center w-11 h-11 rounded-xl hover:bg-slate-100 transition-colors"
-              >
-                <Image 
-                  src="/writine-dark.svg" 
-                  alt="Writine" 
-                  width={24} 
-                  height={24}
-                  className="w-6 h-6"
-                />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="bg-slate-900 text-white border-0">
-              <p>Writine</p>
-            </TooltipContent>
-          </Tooltip>
+          <div className="flex items-center justify-center w-11 h-11">
+            <Image 
+              src="/writine-dark.svg" 
+              alt="Writine" 
+              width={24} 
+              height={24}
+              className="w-6 h-6"
+            />
+          </div>
 
           <div className="w-px h-6 bg-slate-200 mx-1" />
 
@@ -102,8 +95,8 @@ export function FloatingNav() {
                   className={`
                     flex items-center justify-center w-11 h-11 rounded-xl transition-all
                     ${isActive(item.path) 
-                      ? 'bg-[#918df6] text-white shadow-md shadow-[#918df6]/30' 
-                      : 'hover:bg-slate-100 text-slate-600 hover:text-slate-900'
+                      ? 'text-[#918df6]' 
+                      : 'hover:bg-slate-100 text-slate-500 hover:text-slate-700'
                     }
                   `}
                 >

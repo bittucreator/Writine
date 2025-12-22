@@ -173,7 +173,7 @@ export default function NewBlogEditorPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground text-sm">Loading...</div>
       </div>
     );
@@ -181,7 +181,7 @@ export default function NewBlogEditorPage() {
 
   // Editor Mode
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-white">
       {/* Top Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">

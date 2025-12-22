@@ -18,14 +18,14 @@ import {
 } from '@/components/ui/dialog';
 import { FloatingNav } from '@/components/FloatingNav';
 import {
-  Plus,
   Globe,
   Trash2,
   CheckCircle,
   Loader2,
-  ExternalLink,
+  KeyRound,
   Copy,
   AlertCircle,
+  ExternalLink,
   Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -249,28 +249,31 @@ export default function DomainsPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-pulse text-muted-foreground text-sm">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-white">
       <FloatingNav />
       <div className="max-w-4xl mx-auto px-6 py-8 pb-24">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-xl font-semibold mb-1">Publishing</h1>
-          <p className="text-sm text-muted-foreground">Your blog URLs and custom domains</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Publishing</h1>
+          <p className="text-sm text-slate-500">Your blog URLs and custom domains</p>
         </div>
 
         {/* Your Blog URL */}
-        <div className="bg-white rounded-2xl border p-5 mb-4">
+        <div 
+          className="bg-white rounded-xl p-5 mb-4"
+          style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 text-green-500" />
+              <div className="w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <CheckCircle className="w-4.5 h-4.5 text-green-500" />
               </div>
               <div>
                 <p className="text-sm font-medium">Your Blog</p>
@@ -297,7 +300,8 @@ export default function DomainsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 text-xs"
+                    className="h-8 text-xs border-0 shadow-none"
+                    style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
                     onClick={() => window.open(`https://${username}.writine.com`, '_blank')}
                   >
                     <ExternalLink className="w-3 h-3 mr-1" />
@@ -318,15 +322,17 @@ export default function DomainsPage() {
         </div>
 
         {/* Custom Domains Section */}
-        <div className="bg-white rounded-2xl border overflow-hidden">
-          <div className="p-5 border-b flex items-center justify-between">
+        <div 
+          className="bg-white rounded-xl overflow-hidden"
+          style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+        >
+          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Custom Domains</p>
-              <p className="text-xs text-muted-foreground">Use your own domain</p>
+              <p className="text-sm font-medium text-slate-900">Custom Domains</p>
+              <p className="text-xs text-slate-500">Use your own domain</p>
             </div>
-            <Button size="sm" className="h-8 text-xs" onClick={() => setShowAddModal(true)}>
-              <Plus className="w-3 h-3 mr-1" />
-              Add
+            <Button size="sm" className="h-8 text-xs bg-[#918df6] hover:bg-[#7b77e0]" onClick={() => setShowAddModal(true)}>
+              Add Domain
             </Button>
           </div>
           
@@ -405,11 +411,14 @@ export default function DomainsPage() {
         </div>
 
         {/* API Access - Compact */}
-        <div className="bg-white rounded-2xl border p-5 mt-4">
+        <div 
+          className="bg-white rounded-xl p-5 mt-4"
+          style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <ExternalLink className="w-4 h-4 text-blue-500" />
+                <KeyRound className="w-4 h-4 text-blue-500" />
               </div>
               <div>
                 <p className="text-sm font-medium">API Access</p>
@@ -419,7 +428,8 @@ export default function DomainsPage() {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs"
+              className="h-8 text-xs border-0 shadow-none"
+              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
               onClick={() => {
                 const apiUrl = `https://writine.com/api/embed/${username || 'USERNAME'}`;
                 copyToClipboard(apiUrl);
@@ -448,6 +458,8 @@ export default function DomainsPage() {
                   value={newDomain}
                   onChange={(e) => setNewDomain(e.target.value)}
                   placeholder="blog.example.com"
+                  className="border-0 shadow-none bg-white focus-visible:ring-0"
+                  style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
                 />
                 <p className="text-xs text-muted-foreground">
                   Enter your subdomain (e.g., blog.example.com) or root domain
@@ -520,7 +532,7 @@ export default function DomainsPage() {
                 </div>
               </div>
 
-              <div className="border-t" />
+              <div className="border-0-t" />
 
               {/* Option 2: TXT for root domains */}
               <div className="space-y-2">

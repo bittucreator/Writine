@@ -244,7 +244,7 @@ export default function TemplatesPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#918df6]" />
       </div>
     );
@@ -256,100 +256,93 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-white">
       <FloatingNav />
-      <div className="flex flex-col items-center pt-16 px-6 pb-24">
-        {/* Logo */}
-        <div className="mb-10">
-          <Image
-            src="/writine-dark.svg"
-            alt="Writine"
-            width={32}
-            height={32}
-          />
-        </div>
-
-        {/* Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold mb-2">Blog Templates</h2>
-          <p className="text-muted-foreground">Start with a pre-made template to speed up your writing</p>
+      <div className="max-w-6xl mx-auto px-6 py-8 pb-24">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold tracking-tight">Templates</h1>
+          <p className="text-sm text-slate-500">Start with a pre-made template to speed up your writing</p>
         </div>
 
         {/* Search and Filters */}
-        <div className="w-full max-w-4xl mb-8 space-y-4">
+        <div className="mb-8 flex items-center justify-between gap-4">
           {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div className="relative w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               placeholder="Search templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 border-0 shadow-none bg-white focus-visible:ring-0"
+              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
             />
           </div>
 
           {/* Category Tabs */}
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((category) => (
-              <Button
+              <button
                 key={category.id}
-                variant={selectedCategory === category.id ? 'default' : 'outline'}
-                size="sm"
                 onClick={() => setSelectedCategory(category.id)}
-                className={selectedCategory === category.id ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  selectedCategory === category.id 
+                    ? 'bg-[#918df6] text-white' 
+                    : 'bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+                style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
               >
                 {category.label}
-              </Button>
+              </button>
             ))}
           </div>
         </div>
 
         {/* Templates Grid */}
-        <div className="w-full max-w-4xl">
+        <div className="w-full">
           {filteredTemplates.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {filteredTemplates.map((template) => (
-                <Card
+                <div
                   key={template.id}
-                  className="group hover:border-[#918df6] transition-all cursor-pointer"
+                  className="group bg-white rounded-xl p-5 transition-all cursor-pointer hover:bg-slate-50/50"
+                  style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
                   onClick={() => handleUseTemplate(template)}
                 >
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#918df6]/10 flex items-center justify-center shrink-0">
-                        <template.icon className="w-5 h-5 text-[#918df6]" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm mb-1 group-hover:text-[#918df6] transition-colors">
-                          {template.title}
-                        </h3>
-                        <Badge variant="outline" className="text-xs capitalize">
-                          {template.category}
-                        </Badge>
-                      </div>
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-lg bg-[#918df6]/10 flex items-center justify-center shrink-0">
+                      <template.icon className="w-5 h-5 text-[#918df6]" />
                     </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {template.description}
-                    </p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm mb-1 text-slate-900 group-hover:text-[#918df6] transition-colors">
+                        {template.title}
+                      </h3>
+                      <Badge variant="outline" className="text-xs capitalize">
+                        {template.category}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <p className="text-sm text-slate-500 mb-4 line-clamp-2">
+                    {template.description}
+                  </p>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
-                        ~{template.wordCount} words
-                      </span>
-                      <div className="flex items-center gap-1 text-xs text-[#918df6] opacity-0 group-hover:opacity-100 transition-opacity">
-                        Use template
-                        <ArrowRight className="w-3 h-3" />
-                      </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400">
+                      ~{template.wordCount} words
+                    </span>
+                    <div className="flex items-center gap-1 text-xs text-[#918df6] opacity-0 group-hover:opacity-100 transition-opacity">
+                      Use template
+                      <ArrowRight className="w-3 h-3" />
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <Search className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">No templates found matching your search</p>
+            <div className="flex flex-col items-center justify-center py-24">
+              <Search className="w-12 h-12 mb-4 text-slate-300" />
+              <p className="text-slate-500">No templates found matching your search</p>
               <Button 
                 variant="link" 
                 onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}

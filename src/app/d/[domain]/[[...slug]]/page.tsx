@@ -1,17 +1,25 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Lazy Supabase client creation for build compatibility
+const getSupabase = () => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    throw new Error('Missing Supabase environment variables');
+  }
+  return createClient(url, key);
+};
 
 interface Props {
   params: Promise<{ domain: string; slug?: string[] }>;
 }
 
 async function getDomainOwner(domain: string) {
+  const supabase = getSupabase();
   // Get the custom domain record
   const { data: domainRecord } = await supabase
     .from('custom_domains')
@@ -33,6 +41,7 @@ async function getDomainOwner(domain: string) {
 }
 
 async function getBlogData(userId: string, slug: string) {
+  const supabase = getSupabase();
   const { data: blog } = await supabase
     .from('blogs')
     .select('*')
@@ -45,6 +54,7 @@ async function getBlogData(userId: string, slug: string) {
 }
 
 async function getUserBlogs(userId: string) {
+  const supabase = getSupabase();
   const { data: blogs } = await supabase
     .from('blogs')
     .select('id, title, slug, excerpt, featured_image, created_at')
@@ -53,6 +63,19 @@ async function getUserBlogs(userId: string) {
     .order('created_at', { ascending: false });
 
   return blogs || [];
+}
+
+async function isProUser(userId: string): Promise<boolean> {
+  const supabase = getSupabase();
+  
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('status, plan')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .single();
+
+  return subscription?.plan === 'pro';
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -95,6 +118,9 @@ export default async function CustomDomainBlogPage({ params }: Props) {
   if (!userProfile) {
     notFound();
   }
+
+  // Check if user is Pro
+  const isPro = await isProUser(userProfile.id);
 
   // If there's a slug, show the specific blog
   if (blogSlug) {
@@ -141,17 +167,26 @@ export default async function CustomDomainBlogPage({ params }: Props) {
           />
         </article>
 
-        {/* Powered by Writine */}
-        <footer className="border-t py-6 text-center text-sm text-gray-400">
-          <a
-            href="https://writine.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-[#918df6] transition-colors"
-          >
-            Powered by Writine
-          </a>
-        </footer>
+        {/* Powered by Writine - Only show for free users */}
+        {!isPro && (
+          <footer className="border-t py-8 text-center">
+            <Link
+              href="https://writine.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
+            >
+              <Image
+                src="/writine-dark.svg"
+                alt="Writine"
+                width={18}
+                height={18}
+                className="opacity-50"
+              />
+              Powered by Writine
+            </Link>
+          </footer>
+        )}
       </div>
     );
   }
@@ -218,17 +253,26 @@ export default async function CustomDomainBlogPage({ params }: Props) {
         )}
       </div>
 
-      {/* Powered by Writine */}
-      <footer className="border-t py-6 text-center text-sm text-gray-400">
-        <a
-          href="https://writine.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-[#918df6] transition-colors"
-        >
-          Powered by Writine
-        </a>
-      </footer>
+      {/* Powered by Writine - Only show for free users */}
+      {!isPro && (
+        <footer className="border-t py-8 text-center">
+          <Link
+            href="https://writine.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
+          >
+            <Image
+              src="/writine-dark.svg"
+              alt="Writine"
+              width={18}
+              height={18}
+              className="opacity-50"
+            />
+            Powered by Writine
+          </Link>
+        </footer>
+      )}
     </div>
   );
 }

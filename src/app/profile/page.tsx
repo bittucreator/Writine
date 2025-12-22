@@ -218,14 +218,14 @@ export default function ProfilePage() {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#918df6]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-white">
       <FloatingNav />
       <div className="flex flex-col items-center pt-16 px-6 pb-24">
         {/* Logo */}
@@ -289,7 +289,7 @@ export default function ProfilePage() {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="fullName" className="text-sm">
-                        <User className="w-3.5 h-3.5 inline mr-2" />
+                        
                         Full Name
                       </Label>
                       <Input
@@ -302,7 +302,7 @@ export default function ProfilePage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="username" className="text-sm">
-                        <Globe className="w-3.5 h-3.5 inline mr-2" />
+                        
                         Username
                       </Label>
                       <Input
@@ -338,7 +338,7 @@ export default function ProfilePage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-sm">
-                        <Mail className="w-3.5 h-3.5 inline mr-2" />
+                        
                         Email
                       </Label>
                       <Input
@@ -355,7 +355,7 @@ export default function ProfilePage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="newPassword" className="text-sm">
-                        <Lock className="w-3.5 h-3.5 inline mr-2" />
+                        
                         New Password
                       </Label>
                       <Input
@@ -369,7 +369,7 @@ export default function ProfilePage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="confirmPassword" className="text-sm">
-                        <Lock className="w-3.5 h-3.5 inline mr-2" />
+                        
                         Confirm Password
                       </Label>
                       <Input
@@ -419,7 +419,6 @@ export default function ProfilePage() {
                     variant="outline"
                     className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
                   >
-                    <LogOut className="w-4 h-4 mr-2" />
                     Log out
                   </Button>
                 </div>

@@ -17,6 +17,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -37,9 +45,9 @@ import {
   Trash2,
   Eye,
   Copy,
-  FileText,
+  NotebookText,
   Clock,
-  CheckCircle,
+  BadgeCheck,
   ArrowUpDown,
 } from 'lucide-react';
 
@@ -75,6 +83,15 @@ export default function DashboardPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [blogToDelete, setBlogToDelete] = useState<Blog | null>(null);
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const blogsPerPage = 10;
+  const totalPages = Math.ceil(filteredBlogs.length / blogsPerPage);
+  const paginatedBlogs = filteredBlogs.slice(
+    (currentPage - 1) * blogsPerPage,
+    currentPage * blogsPerPage
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -114,6 +131,7 @@ export default function DashboardPage() {
     });
     
     setFilteredBlogs(result);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [blogs, statusFilter, sortField, sortOrder]);
 
   const fetchData = async () => {
@@ -295,79 +313,85 @@ export default function DashboardPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-pulse text-muted-foreground text-sm">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-white">
       <FloatingNav />
       <div className="max-w-6xl mx-auto px-6 py-8 pb-24">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="flex items-center justify-between mb-1">
-            <h1 className="text-xl font-semibold">Dashboard</h1>
-            <Button onClick={() => router.push('/blog/new')} size="sm">
+            <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+            <Button onClick={() => router.push('/blog/new')} size="sm" className="bg-[#918df6] hover:bg-[#7b77e0]">
               New Blog
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground">Welcome back! Manage your blogs</p>
+          <p className="text-sm text-slate-500">Welcome back! Manage your blogs</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-3 gap-4 mb-6">
           <button
             onClick={() => setStatusFilter('all')}
-            className={`bg-white rounded-2xl border p-4 transition-colors hover:border-[#918df6] ${statusFilter === 'all' ? 'border-[#918df6] ring-1 ring-[#918df6]' : ''}`}
+            className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+            style={{ border: statusFilter === 'all' ? '1px solid rgba(145, 141, 246, 0.5)' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-[#918df6]" />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
+                  <NotebookText className="w-4.5 h-4.5 text-[#918df6]" />
                 </div>
-                <span className="text-xs text-muted-foreground">All Blogs</span>
+                <span className="text-sm font-medium text-slate-600">All Blogs</span>
               </div>
-              <p className="text-2xl font-semibold">{blogCounts.all}</p>
+              <p className="text-3xl font-semibold text-slate-900">{blogCounts.all}</p>
             </div>
           </button>
           <button
             onClick={() => setStatusFilter('draft')}
-            className={`bg-white rounded-2xl border p-4 transition-colors hover:border-[#918df6] ${statusFilter === 'draft' ? 'border-[#918df6] ring-1 ring-[#918df6]' : ''}`}
+            className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+            style={{ border: statusFilter === 'draft' ? '1px solid rgba(145, 141, 246, 0.5)' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-amber-500" />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                  <Clock className="w-4.5 h-4.5 text-amber-500" />
                 </div>
-                <span className="text-xs text-muted-foreground">Drafts</span>
+                <span className="text-sm font-medium text-slate-600">Drafts</span>
               </div>
-              <p className="text-2xl font-semibold">{blogCounts.drafts}</p>
+              <p className="text-3xl font-semibold text-slate-900">{blogCounts.drafts}</p>
             </div>
           </button>
           <button
             onClick={() => setStatusFilter('published')}
-            className={`bg-white rounded-2xl border p-4 transition-colors hover:border-[#918df6] ${statusFilter === 'published' ? 'border-[#918df6] ring-1 ring-[#918df6]' : ''}`}
+            className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+            style={{ border: statusFilter === 'published' ? '1px solid rgba(145, 141, 246, 0.5)' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <BadgeCheck className="w-4.5 h-4.5 text-green-500" />
                 </div>
-                <span className="text-xs text-muted-foreground">Published</span>
+                <span className="text-sm font-medium text-slate-600">Published</span>
               </div>
-              <p className="text-2xl font-semibold">{blogCounts.published}</p>
+              <p className="text-3xl font-semibold text-slate-900">{blogCounts.published}</p>
             </div>
           </button>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl border overflow-hidden">
+        <div 
+          className="bg-white rounded-xl overflow-hidden"
+          style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+        >
           {filteredBlogs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-4">
               <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
-                <FileText className="w-6 h-6 text-muted-foreground" />
+                <NotebookText className="w-6 h-6 text-muted-foreground" />
               </div>
               <h3 className="text-sm font-medium mb-1">
                 {statusFilter !== 'all' ? 'No blogs found' : 'No blogs yet'}
@@ -392,7 +416,7 @@ export default function DashboardPage() {
             <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-10">
+                    <TableHead className="w-8">
                       <Checkbox
                         checked={selectedIds.size === filteredBlogs.length && filteredBlogs.length > 0}
                         onCheckedChange={handleSelectAll}
@@ -446,7 +470,7 @@ export default function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredBlogs.map((blog) => (
+                  {paginatedBlogs.map((blog) => (
                     <TableRow 
                       key={blog.id} 
                       className="cursor-pointer"
@@ -473,7 +497,7 @@ export default function DashboardPage() {
                                 className={`cursor-pointer ${blog.status === 'published' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}
                               >
                                 {blog.status === 'published' ? (
-                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  <BadgeCheck className="w-3 h-3 mr-1" />
                                 ) : (
                                   <Clock className="w-3 h-3 mr-1" />
                                 )}
@@ -493,7 +517,7 @@ export default function DashboardPage() {
                               onClick={() => handleStatusChange(blog, 'published')}
                               className={blog.status === 'published' ? 'bg-accent' : ''}
                             >
-                              <CheckCircle className="w-3.5 h-3.5 mr-2" />
+                              <BadgeCheck className="w-3.5 h-3.5 mr-2" />
                               Published
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -546,10 +570,61 @@ export default function DashboardPage() {
             )}
         </div>
 
-        {/* Results count */}
+        {/* Pagination */}
         {filteredBlogs.length > 0 && (
-          <div className="mt-3 text-xs text-muted-foreground">
-            Showing {filteredBlogs.length} of {blogs.length} blogs
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {selectedIds.size > 0 && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setBulkDeleteDialogOpen(true)}
+                  className="gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete Selected
+                </Button>
+              )}
+            </div>
+            {totalPages > 1 && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      // Show first, last, current, and pages around current
+                      if (page === 1 || page === totalPages) return true;
+                      if (Math.abs(page - currentPage) <= 1) return true;
+                      return false;
+                    })
+                    .map((page, index, array) => (
+                      <PaginationItem key={page}>
+                        {index > 0 && array[index - 1] !== page - 1 && (
+                          <span className="px-2 text-slate-400">...</span>
+                        )}
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </div>
         )}
 

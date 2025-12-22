@@ -15,8 +15,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,
@@ -25,8 +23,6 @@ import {
   TrendingUp,
   FileText,
   Eye,
-  Clock,
-  CheckCircle,
   BarChart3,
 } from 'lucide-react';
 
@@ -104,66 +100,78 @@ export default function AnalyticsPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-pulse text-muted-foreground text-sm">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-white">
       <FloatingNav />
       <div className="max-w-6xl mx-auto px-6 py-8 pb-24">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold mb-1">Analytics</h1>
-          <p className="text-sm text-muted-foreground">Track your blog performance</p>
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
+          <p className="text-sm text-slate-500">Track your blog performance</p>
         </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-2xl border p-4">
+            <div 
+              className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+            >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
-                    <Eye className="w-4 h-4 text-[#918df6]" />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
+                    <Eye className="w-4.5 h-4.5 text-[#918df6]" />
                   </div>
-                  <span className="text-xs text-muted-foreground">Total Views</span>
+                  <span className="text-sm font-medium text-slate-600">Total Views</span>
                 </div>
-                <p className="text-2xl font-semibold">{totalViews.toLocaleString()}</p>
+                <p className="text-3xl font-semibold text-slate-900">{totalViews.toLocaleString()}</p>
               </div>
             </div>
-            <div className="bg-white rounded-2xl border p-4">
+            <div 
+              className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+            >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-green-500" />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <FileText className="w-4.5 h-4.5 text-green-500" />
                   </div>
-                  <span className="text-xs text-muted-foreground">Total Blogs</span>
+                  <span className="text-sm font-medium text-slate-600">Total Blogs</span>
                 </div>
-                <p className="text-2xl font-semibold">{blogCounts.all}</p>
+                <p className="text-3xl font-semibold text-slate-900">{blogCounts.all}</p>
               </div>
             </div>
-            <div className="bg-white rounded-2xl border p-4">
+            <div 
+              className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+            >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-blue-500" />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <TrendingUp className="w-4.5 h-4.5 text-blue-500" />
                   </div>
-                  <span className="text-xs text-muted-foreground">Avg. Daily Views</span>
+                  <span className="text-sm font-medium text-slate-600">Avg. Daily Views</span>
                 </div>
-                <p className="text-2xl font-semibold">{avgViews}</p>
+                <p className="text-3xl font-semibold text-slate-900">{avgViews}</p>
               </div>
             </div>
-            <div className="bg-white rounded-2xl border p-4">
+            <div 
+              className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+            >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                    <BarChart3 className="w-4 h-4 text-amber-500" />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <BarChart3 className="w-4.5 h-4.5 text-amber-500" />
                   </div>
-                  <span className="text-xs text-muted-foreground">Published Blogs</span>
+                  <span className="text-sm font-medium text-slate-600">Published Blogs</span>
                 </div>
-                <p className="text-2xl font-semibold">{blogCounts.published}</p>
+                <p className="text-3xl font-semibold text-slate-900">{blogCounts.published}</p>
               </div>
             </div>
           </div>
@@ -178,24 +186,24 @@ export default function AnalyticsPage() {
             <TabsContent value="weekly" className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 {/* Area Chart */}
-                <Card className="col-span-2 rounded-2xl">
+                <Card className="col-span-2 rounded-xl" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">Views This Week</CardTitle>
                     <CardDescription className="text-xs">Daily page views</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="h-75">
+                  <CardContent className="pl-2">
+                    <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={weeklyData}>
+                        <AreaChart data={weeklyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                           <defs>
                             <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="5%" stopColor="#918df6" stopOpacity={0.3}/>
                               <stop offset="95%" stopColor="#918df6" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                          <XAxis dataKey="name" className="text-xs" />
-                          <YAxis className="text-xs" />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                          <YAxis fontSize={12} tickLine={false} axisLine={false} />
                           <Tooltip 
                             contentStyle={{ 
                               borderRadius: '12px', 
@@ -218,13 +226,13 @@ export default function AnalyticsPage() {
                 </Card>
 
                 {/* Pie Chart */}
-                <Card className="rounded-2xl">
+                <Card className="rounded-xl" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">Post Status</CardTitle>
                     <CardDescription className="text-xs">Published vs Drafts</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-50">
+                    <div className="h-[200px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -266,69 +274,46 @@ export default function AnalyticsPage() {
             </TabsContent>
 
             <TabsContent value="monthly" className="space-y-4">
-              <Card className="rounded-2xl">
+              <Card className="rounded-xl" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">Monthly Overview</CardTitle>
-                  <CardDescription className="text-xs">Views and posts over time</CardDescription>
+                  <CardDescription className="text-xs">Views over time</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-75">
+                <CardContent className="pl-2">
+                  <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={monthlyData}>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis dataKey="name" className="text-xs" />
-                        <YAxis className="text-xs" />
+                      <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorMonthlyViews" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#918df6" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#918df6" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                        <YAxis fontSize={12} tickLine={false} axisLine={false} />
                         <Tooltip 
                           contentStyle={{ 
                             borderRadius: '12px', 
                             border: '1px solid #e5e7eb',
                             boxShadow: 'none'
                           }} 
-                        />h-75
-                        <Bar dataKey="views" fill="#918df6" radius={[4, 4, 0, 0]} />
-                      </BarChart>
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="views" 
+                          stroke="#918df6" 
+                          strokeWidth={2}
+                          fillOpacity={1} 
+                          fill="url(#colorMonthlyViews)" 
+                        />
+                      </AreaChart>
                     </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
-
-          {/* Recent Activity */}
-          <Card className="mt-6 rounded-2xl">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-              <CardDescription className="text-xs">Latest actions on your blog</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {blogCounts.all > 0 ? (
-                  <>
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm">{blogCounts.published} posts published</p>
-                        <p className="text-xs text-muted-foreground">Keep up the great work!</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-                        <Clock className="w-4 h-4 text-amber-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm">{blogCounts.drafts} drafts in progress</p>
-                        <p className="text-xs text-muted-foreground">Finish and publish them soon</p>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No activity yet. Create your first post!</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
       </div>
     </div>
   );

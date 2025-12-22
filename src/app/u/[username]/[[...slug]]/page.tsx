@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, User, Clock } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 
 interface Blog {
   id: string;
@@ -37,6 +38,7 @@ export default function SubdomainPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isPro, setIsPro] = useState(false);
 
   useEffect(() => {
     loadContent();
@@ -62,6 +64,16 @@ export default function SubdomainPage() {
       }
 
       setUserProfile(profile);
+      
+      // Check if user is Pro
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('status, plan')
+        .eq('user_id', profile.id)
+        .eq('status', 'active')
+        .single();
+      
+      setIsPro(subscription?.plan === 'pro');
 
       if (blogSlug) {
         // Load specific blog
@@ -99,7 +111,7 @@ export default function SubdomainPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
     );
@@ -107,7 +119,7 @@ export default function SubdomainPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">404</h1>
           <p className="text-muted-foreground mb-4">{error}</p>
@@ -181,29 +193,35 @@ export default function SubdomainPage() {
           />
         </article>
 
-        {/* Footer */}
-        <footer className="border-t py-8 mt-12">
-          <div className="max-w-4xl mx-auto px-6 text-center text-sm text-muted-foreground">
-            <p>
-              Powered by{' '}
-              <a 
-                href="https://writine.com" 
-                target="_blank" 
+        {/* Footer - Only show for free users */}
+        {!isPro && (
+          <footer className="border-t py-8 mt-12">
+            <div className="max-w-4xl mx-auto px-6 text-center">
+              <Link
+                href="https://writine.com"
+                target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#918df6] hover:underline"
+                className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
               >
-                Writine
-              </a>
-            </p>
-          </div>
-        </footer>
+                <Image
+                  src="/writine-dark.svg"
+                  alt="Writine"
+                  width={18}
+                  height={18}
+                  className="opacity-50"
+                />
+                Powered by Writine
+              </Link>
+            </div>
+          </footer>
+        )}
       </div>
     );
   }
 
   // Blog listing (homepage)
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-6 py-8">
@@ -276,22 +294,28 @@ export default function SubdomainPage() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t py-8 mt-12 bg-white">
-        <div className="max-w-4xl mx-auto px-6 text-center text-sm text-muted-foreground">
-          <p>
-            Powered by{' '}
-            <a 
-              href="https://writine.com" 
-              target="_blank" 
+      {/* Footer - Only show for free users */}
+      {!isPro && (
+        <footer className="border-t py-8 mt-12 bg-white">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <Link
+              href="https://writine.com"
+              target="_blank"
               rel="noopener noreferrer"
-              className="text-[#918df6] hover:underline"
+              className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
             >
-              Writine
-            </a>
-          </p>
-        </div>
-      </footer>
+              <Image
+                src="/writine-dark.svg"
+                alt="Writine"
+                width={18}
+                height={18}
+                className="opacity-50"
+              />
+              Powered by Writine
+            </Link>
+          </div>
+        </footer>
+      )}
     </div>
   );
 }

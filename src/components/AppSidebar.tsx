@@ -100,7 +100,7 @@ export function AppSidebar() {
 
   return (
     <>
-      <Sidebar className="border-r bg-[#fafafa]">
+      <Sidebar className="border-r bg-white">
         {/* Logo Header with Dropdown */}
         <SidebarHeader className="px-3 py-3">
           <DropdownMenu>

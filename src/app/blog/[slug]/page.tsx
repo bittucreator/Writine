@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Lazy Supabase client creation for build compatibility
 const getSupabase = () => {
@@ -17,7 +18,18 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getBlogBySlug(slug: string) {
+interface BlogWithSubscription {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+  user_id: string;
+  user_profiles: {
+    full_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
+}
+
+async function getBlogBySlug(slug: string): Promise<BlogWithSubscription | null> {
   const supabase = getSupabase();
   
   // First try to find by custom_slug (for published blogs)
@@ -55,6 +67,19 @@ async function getBlogBySlug(slug: string) {
   }
 
   return blog;
+}
+
+async function isProUser(userId: string): Promise<boolean> {
+  const supabase = getSupabase();
+  
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('status, plan')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .single();
+
+  return subscription?.plan === 'pro';
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -95,6 +120,9 @@ export default async function PublicBlogPage({ params }: Props) {
   const author = blog.user_profiles;
   const wordCount = blog.content?.split(/\s+/).filter(Boolean).length || 0;
   const readingTime = Math.ceil(wordCount / 200);
+  
+  // Check if the blog author is a Pro user
+  const isPro = await isProUser(blog.user_id);
 
   return (
     <div className="min-h-screen bg-white">
@@ -151,19 +179,26 @@ export default async function PublicBlogPage({ params }: Props) {
         />
       </article>
 
-      {/* Powered by Writine */}
-      <footer className="border-t py-8 text-center">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
-        >
-          <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
-            <path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2zm0 25.5C9.649 27.5 4.5 22.351 4.5 16S9.649 4.5 16 4.5 27.5 9.649 27.5 16 22.351 27.5 16 27.5z"/>
-            <path d="M21.5 11h-11c-.828 0-1.5.672-1.5 1.5s.672 1.5 1.5 1.5h11c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5zM18.5 16h-8c-.828 0-1.5.672-1.5 1.5s.672 1.5 1.5 1.5h8c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5zM15.5 21h-5c-.828 0-1.5.672-1.5 1.5s.672 1.5 1.5 1.5h5c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5z"/>
-          </svg>
-          Powered by Writine
-        </Link>
-      </footer>
+      {/* Powered by Writine - Only show for free users */}
+      {!isPro && (
+        <footer className="border-t py-8 text-center">
+          <Link
+            href="https://writine.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
+          >
+            <Image
+              src="/writine-dark.svg"
+              alt="Writine"
+              width={20}
+              height={20}
+              className="opacity-50"
+            />
+            Powered by Writine
+          </Link>
+        </footer>
+      )}
     </div>
   );
 }

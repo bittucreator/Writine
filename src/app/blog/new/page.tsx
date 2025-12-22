@@ -172,7 +172,7 @@ function SortableOutlineItem({
 export default function BlogEditPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground text-sm">Loading...</div>
       </div>
     }>
@@ -1007,7 +1007,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
   );
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-white">
       <FloatingNav />
       <div className="flex flex-col items-center pt-16 px-6 pb-24">
         {/* Logo */}

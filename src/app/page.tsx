@@ -115,9 +115,19 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="pt-16 sm:pt-24 pb-12 sm:pb-20 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <Badge className="mb-4 sm:mb-6 bg-[#8345dd]/10 text-[#8345dd] hover:bg-[#8345dd]/20 border-0">
-            From idea to published in minutes
-          </Badge>
+          <a 
+            href="https://www.producthunt.com/products/writine?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-writine" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block mb-4 sm:mb-6"
+          >
+            <img 
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1053715&theme=light&t=1766507245478" 
+              alt="Writine - AI blog writer that creates SEO-optimized content in minutes | Product Hunt" 
+              width="250" 
+              height="54"
+            />
+          </a>
 
           <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-slate-900 mb-4 sm:mb-6 leading-tight tracking-tight">
             Write, publish, grow

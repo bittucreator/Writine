@@ -96,6 +96,7 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-8">
             <Link href="#features" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">Features</Link>
             <Link href="#pricing" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">Pricing</Link>
+            <Link href="/contact" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">Contact</Link>
           </div>
 
           <div className="flex items-center gap-3">

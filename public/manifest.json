@@ -1,0 +1,21 @@
+{
+  "name": "Writine - AI Blog Writing Platform",
+  "short_name": "Writine",
+  "description": "Create SEO-optimized blog posts in minutes with AI",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f7f3",
+  "theme_color": "#8345dd",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

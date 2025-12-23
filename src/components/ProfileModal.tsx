@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import {
   Dialog,
   DialogContent,
@@ -30,7 +31,7 @@ export function ProfileModal({ open, onOpenChange, onProfileUpdate }: ProfileMod
   const [uploadingImage, setUploadingImage] = useState(false);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
+  const [, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -52,25 +53,10 @@ export function ProfileModal({ open, onOpenChange, onProfileUpdate }: ProfileMod
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('full_name, avatar_url')
-        .eq('id', user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        // Column might not exist yet, try without avatar_url
-        const { data: fallbackData } = await supabase
-          .from('user_profiles')
-          .select('full_name')
-          .eq('id', user.id)
-          .single();
-        
-        if (fallbackData) {
-          setFullName(fallbackData.full_name || '');
-        }
-        return;
-      }
+      const data = await db.getOne<{ full_name: string; avatar_url: string }>('user_profiles', {
+        select: 'full_name, avatar_url',
+        filters: { id: user.id }
+      });
 
       if (data) {
         setFullName(data.full_name || '');
@@ -93,26 +79,17 @@ export function ProfileModal({ open, onOpenChange, onProfileUpdate }: ProfileMod
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      const result = await db.storage.upload('avatars', filePath, file);
+      const publicUrl = result.publicUrl;
 
       setAvatarUrl(publicUrl);
 
       // Update profile with new avatar URL
-      await supabase
-        .from('user_profiles')
-        .upsert({
-          id: user.id,
-          avatar_url: publicUrl,
-          updated_at: new Date().toISOString(),
-        });
+      await db.upsert('user_profiles', {
+        id: user.id,
+        avatar_url: publicUrl,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
 
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -129,28 +106,14 @@ export function ProfileModal({ open, onOpenChange, onProfileUpdate }: ProfileMod
     setMessage(null);
 
     try {
-      // Update user_profiles table (without avatar_url if column doesn't exist)
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .upsert({
-          id: user.id,
-          email: email,
-          full_name: fullName,
-          updated_at: new Date().toISOString(),
-        });
-
-      if (profileError) {
-        console.error('Profile update error:', profileError.message);
-        throw profileError;
-      }
-
-      // Try to update avatar_url separately (in case column exists)
-      if (avatarUrl) {
-        await supabase
-          .from('user_profiles')
-          .update({ avatar_url: avatarUrl })
-          .eq('id', user.id);
-      }
+      // Update user_profiles table
+      await db.upsert('user_profiles', {
+        id: user.id,
+        email: email,
+        full_name: fullName,
+        avatar_url: avatarUrl,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
 
       // Update auth metadata
       const { error: authError } = await supabase.auth.updateUser({
@@ -216,7 +179,7 @@ export function ProfileModal({ open, onOpenChange, onProfileUpdate }: ProfileMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>Profile</DialogTitle>
           <DialogDescription>

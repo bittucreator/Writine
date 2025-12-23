@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { FloatingNav } from '@/components/FloatingNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,36 +37,15 @@ export default function ProfilePage() {
     }
   }, [user, authLoading, router]);
 
-  useEffect(() => {
-    if (user) {
-      setEmail(user.email || '');
-      fetchProfile();
-    }
-  }, [user]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user) return;
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('full_name, avatar_url, username')
-        .eq('id', user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        const { data: fallbackData } = await supabase
-          .from('user_profiles')
-          .select('full_name')
-          .eq('id', user.id)
-          .single();
-        
-        if (fallbackData) {
-          setFullName(fallbackData.full_name || '');
-        }
-        return;
-      }
+      const data = await db.getOne<{ full_name: string; avatar_url: string; username: string }>('user_profiles', {
+        select: 'full_name, avatar_url, username',
+        filters: { id: user.id }
+      });
 
       if (data) {
         setFullName(data.full_name || '');
@@ -77,7 +57,14 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      setEmail(user.email || '');
+      fetchProfile();
+    }
+  }, [user, fetchProfile]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -89,25 +76,16 @@ export default function ProfilePage() {
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      const result = await db.storage.upload('avatars', filePath, file);
+      const publicUrl = result.publicUrl;
 
       setAvatarUrl(publicUrl);
 
-      await supabase
-        .from('user_profiles')
-        .upsert({
-          id: user.id,
-          avatar_url: publicUrl,
-          updated_at: new Date().toISOString(),
-        });
+      await db.upsert('user_profiles', {
+        id: user.id,
+        avatar_url: publicUrl,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
 
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -138,13 +116,13 @@ export default function ProfilePage() {
           return;
         }
         // Check if username is taken
-        const { data: existing } = await supabase
-          .from('user_profiles')
-          .select('id')
-          .eq('username', username)
-          .neq('id', user.id)
-          .single();
-        if (existing) {
+        const existing = await db.get<{ id: string }>('user_profiles', {
+          select: 'id',
+          filters: { username },
+          advancedFilters: [{ column: 'id', operator: 'neq', value: user.id }],
+          limit: 1
+        });
+        if (existing.length > 0) {
           setUsernameError('This username is already taken');
           setSaving(false);
           return;
@@ -152,23 +130,16 @@ export default function ProfilePage() {
       }
       setUsernameError('');
 
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .upsert({
-          id: user.id,
-          email: email,
-          full_name: fullName,
-          username: username || null,
-          updated_at: new Date().toISOString(),
-        });
-
-      if (profileError) throw profileError;
+      await db.upsert('user_profiles', {
+        id: user.id,
+        email: email,
+        full_name: fullName,
+        username: username || null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
 
       if (avatarUrl) {
-        await supabase
-          .from('user_profiles')
-          .update({ avatar_url: avatarUrl })
-          .eq('id', user.id);
+        await db.update('user_profiles', user.id, { avatar_url: avatarUrl });
       }
 
       const { error: authError } = await supabase.auth.updateUser({
@@ -227,9 +198,9 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-white">
       <FloatingNav />
-      <div className="flex flex-col items-center pt-16 px-6 pb-24">
+      <div className="flex flex-col items-center pt-10 sm:pt-16 px-4 sm:px-6 pb-24">
         {/* Logo */}
-        <div className="mb-10">
+        <div className="mb-6 sm:mb-10">
           <Image
             src="/writine-dark.svg"
             alt="Writine"
@@ -239,9 +210,9 @@ export default function ProfilePage() {
         </div>
 
         {/* Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold mb-2">Profile Settings</h2>
-          <p className="text-muted-foreground">Manage your account information</p>
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-2">Profile Settings</h2>
+          <p className="text-muted-foreground text-sm">Manage your account information</p>
         </div>
 
         {/* Content */}

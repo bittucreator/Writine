@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import BlogEditorPro from '@/components/BlogEditorPro';
 import { generateBlogContent, generateSEOMetadata, generateOutline } from '@/lib/ai';
 import { analyzeSEO } from '@/lib/seo';
@@ -234,24 +234,26 @@ function BlogEditPageContent() {
 
   useEffect(() => {
     const loadBlog = async () => {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
+      try {
+        const data = await db.getOne<{
+          title: string;
+          content: string;
+          excerpt: string;
+          seo_title: string;
+          seo_description: string;
+          seo_keywords: string[];
+        }>('blogs', { filters: { id } });
 
-      if (error) {
+        if (data) {
+          setTitle(data.title);
+          setContent(data.content);
+          setExcerpt(data.excerpt);
+          setSeoTitle(data.seo_title || '');
+          setSeoDescription(data.seo_description || '');
+          setSeoKeywords(data.seo_keywords || []);
+        }
+      } catch (error) {
         console.error('Error loading blog:', error);
-        return;
-      }
-
-      if (data) {
-        setTitle(data.title);
-        setContent(data.content);
-        setExcerpt(data.excerpt);
-        setSeoTitle(data.seo_title || '');
-        setSeoDescription(data.seo_description || '');
-        setSeoKeywords(data.seo_keywords || []);
       }
     };
 
@@ -331,16 +333,14 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
         status: 'draft',
       };
 
-      const { data: savedBlog, error: saveError } = await supabase
-        .from('blogs')
-        .insert(blogData)
-        .select()
-        .single();
-
-      if (saveError) throw saveError;
+      const savedBlogs = await db.insert<{ id: string }>('blogs', blogData);
+      
+      if (!savedBlogs?.[0]?.id) {
+        throw new Error('Failed to save blog');
+      }
 
       // Redirect to full-page editor
-      router.push(`/blog/editor/${savedBlog.id}`);
+      router.push(`/blog/editor/${savedBlogs[0].id}`);
     } catch (error) {
       console.error('Error generating content:', error);
       alert('Failed to generate content. Please try again.');
@@ -372,10 +372,10 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
 
   // Wizard Step Components
   const renderTopicStep = () => (
-    <div className="max-w-xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold mb-2">What would you like to write about?</h2>
-        <p className="text-muted-foreground">Enter your topic and optional keywords to get started</p>
+    <div className="max-w-xl mx-auto px-4 sm:px-0">
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">What would you like to write about?</h2>
+        <p className="text-muted-foreground text-sm sm:text-base">Enter your topic and optional keywords to get started</p>
       </div>
 
       <Card>
@@ -449,10 +449,10 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
     };
 
     return (
-      <div className="max-w-xl mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold mb-2">Review Your Outline</h2>
-          <p className="text-muted-foreground">Drag to reorder or edit sections</p>
+      <div className="max-w-xl mx-auto px-4 sm:px-0">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-2">Review Your Outline</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">Drag to reorder or edit sections</p>
         </div>
 
         <Card>
@@ -523,10 +523,10 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
   };
 
   const renderCustomizeStep = () => (
-    <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold mb-2">Customize Your Blog</h2>
-        <p className="text-muted-foreground">Fine-tune the style and length of your content</p>
+    <div className="max-w-2xl mx-auto px-4 sm:px-0">
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">Customize Your Blog</h2>
+        <p className="text-muted-foreground text-sm sm:text-base">Fine-tune the style and length of your content</p>
       </div>
 
       <Card>
@@ -538,7 +538,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
           {/* Tone Selection */}
           <div className="space-y-3">
             <Label>Writing Tone</Label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {TONES.map((tone) => (
                 <Button
                   key={tone.id}

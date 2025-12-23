@@ -92,8 +92,6 @@ export function BillingModal({ open, onOpenChange }: BillingModalProps) {
   };
 
   const handleSelectPlan = (planId: string) => {
-    // TODO: Implement Stripe checkout
-    console.log('Selected plan:', planId);
     toast.info(`Plan upgrade coming soon! Selected: ${planId}`);
   };
 

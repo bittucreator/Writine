@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import BlogEditorPro from '@/components/BlogEditorPro';
 import { PublishDialog } from '@/components/PublishDialog';
 import { analyzeSEO, generateSlug } from '@/lib/seo';
@@ -83,18 +83,16 @@ export default function NewBlogEditorPage() {
 
       if (blogId) {
         // Update existing
-        const { error } = await supabase.from('blogs').update(blogData).eq('id', blogId);
-        if (error) throw error;
+        await db.update('blogs', blogId, blogData);
         setSlug(newSlug);
       } else {
         // Create new
-        const { data, error } = await supabase.from('blogs').insert(blogData).select().single();
-        if (error) throw error;
-        if (data) {
-          setBlogId(data.id);
+        const data = await db.insert<{ id: string }>('blogs', blogData);
+        if (data && data[0]) {
+          setBlogId(data[0].id);
           setSlug(newSlug);
           // Redirect to the editor with ID
-          router.replace(`/blog/editor/${data.id}`);
+          router.replace(`/blog/editor/${data[0].id}`);
         }
       }
 
@@ -136,16 +134,14 @@ export default function NewBlogEditorPage() {
 
       if (blogId) {
         // Update existing
-        const { error } = await supabase.from('blogs').update(blogData).eq('id', blogId);
-        if (error) throw error;
+        await db.update('blogs', blogId, blogData);
       } else {
         // Create new
-        const { data, error } = await supabase.from('blogs').insert(blogData).select().single();
-        if (error) throw error;
-        if (data) {
-          setBlogId(data.id);
+        const data = await db.insert<{ id: string }>('blogs', blogData);
+        if (data && data[0]) {
+          setBlogId(data[0].id);
           // Redirect to the editor with ID
-          router.replace(`/blog/editor/${data.id}`);
+          router.replace(`/blog/editor/${data[0].id}`);
         }
       }
 
@@ -183,20 +179,20 @@ export default function NewBlogEditorPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 bg-white border-b">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-50 bg-white" style={{ borderBottom: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-12 sm:h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => router.push('/dashboard')}
-              className="gap-2"
+              className="gap-1 sm:gap-2 px-2 sm:px-3"
             >
               <ArrowLeft className="w-4 h-4" />
-              Dashboard
+              <span className="hidden sm:inline">Dashboard</span>
             </Button>
-            <div className="w-px h-5 bg-slate-200" />
-            <span className="text-sm font-medium text-slate-700 truncate max-w-50">
+            <div className="hidden sm:block w-px h-5 bg-slate-200" />
+            <span className="text-sm font-medium text-slate-700 truncate max-w-24 sm:max-w-50">
               {title || 'New Blog'}
             </span>
             {isPreview ? (
@@ -205,22 +201,23 @@ export default function NewBlogEditorPage() {
                 Preview
               </Badge>
             ) : (
-              <Badge variant="outline" className="text-xs">Draft</Badge>
+              <Badge variant="outline" className="text-xs hidden sm:inline-flex">Draft</Badge>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {!isPreview && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowSeoPanel(!showSeoPanel)}
-                className={showSeoPanel ? 'bg-slate-100' : ''}
+                className={`border-0 shadow-none px-2 sm:px-3 ${showSeoPanel ? 'bg-slate-100' : ''}`}
+                style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
               >
-                <Settings className="w-4 h-4 mr-1.5" />
-                SEO
+                <Settings className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">SEO</span>
                 <Badge 
-                  className={`ml-2 text-[10px] px-1.5 ${
+                  className={`ml-1 sm:ml-2 text-[10px] px-1.5 ${
                     seoAnalysis.score >= 80 ? 'bg-green-100 text-green-700' :
                     seoAnalysis.score >= 50 ? 'bg-yellow-100 text-yellow-700' :
                     'bg-red-100 text-red-700'
@@ -235,35 +232,38 @@ export default function NewBlogEditorPage() {
               variant={isPreview ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsPreview(!isPreview)}
-              className={isPreview ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}
+              className={isPreview ? 'bg-[#918df6] hover:bg-[#7b77e0] px-2 sm:px-3' : 'border-0 shadow-none px-2 sm:px-3'}
+              style={!isPreview ? { border: '0.5px solid rgba(0, 0, 0, 0.08)' } : undefined}
             >
               {isPreview ? (
-                <><Edit3 className="w-4 h-4 mr-1.5" />Edit</>
+                <><Edit3 className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Edit</span></>
               ) : (
-                <><Eye className="w-4 h-4 mr-1.5" />Preview</>
+                <><Eye className="w-4 h-4 sm:mr-1.5" /><span className="hidden sm:inline">Preview</span></>
               )}
             </Button>
 
-            <div className="w-px h-5 bg-slate-200" />
+            <div className="hidden sm:block w-px h-5 bg-slate-100" />
 
             <Button
               size="sm"
               variant="outline"
               onClick={handleSave}
               disabled={saving || publishing}
+              className="border-0 shadow-none px-2 sm:px-3"
+              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Save className="w-4 h-4 mr-1.5" />}
-              Save Draft
+              {saving ? <Loader2 className="w-4 h-4 animate-spin sm:mr-1.5" /> : <Save className="w-4 h-4 sm:mr-1.5" />}
+              <span className="hidden sm:inline">Save Draft</span>
             </Button>
 
             <Button
               size="sm"
               onClick={() => setShowPublishDialog(true)}
               disabled={saving || publishing}
-              className="bg-[#918df6] hover:bg-[#7b77e0]"
+              className="bg-[#918df6] hover:bg-[#7b77e0] px-2 sm:px-3"
             >
-              <Globe className="w-4 h-4 mr-1.5" />
-              Publish
+              <Globe className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Publish</span>
             </Button>
           </div>
         </div>
@@ -285,14 +285,14 @@ export default function NewBlogEditorPage() {
       {/* Main Content */}
       <div className="flex">
         {/* Editor/Preview Area */}
-        <div className={`flex-1 transition-all ${showSeoPanel && !isPreview ? 'mr-80' : ''}`}>
-          <div className={`mx-auto p-6 space-y-4 ${isPreview ? 'max-w-3xl' : 'max-w-6xl'}`}>
+        <div className={`flex-1 transition-all ${showSeoPanel && !isPreview ? 'lg:mr-80' : ''}`}>
+          <div className={`mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 ${isPreview ? 'max-w-3xl' : 'max-w-6xl'}`}>
             {isPreview ? (
               /* Preview Mode */
-              <div className="bg-white rounded-xl border p-8">
+              <div className="bg-white rounded-xl p-4 sm:p-8" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
                 <article>
-                  <header className="mb-8 pb-6 border-b">
-                    <h1 className="text-3xl font-bold text-slate-900 mb-4 leading-tight">
+                  <header className="mb-6 sm:mb-8 pb-4 sm:pb-6 border-b">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 leading-tight">
                       {title || 'Untitled Blog Post'}
                     </h1>
                     {excerpt && (
@@ -329,7 +329,7 @@ export default function NewBlogEditorPage() {
               /* Editor Mode */
               <>
                 {/* Title & Excerpt */}
-                <div className="bg-white rounded-xl border p-6 space-y-4">
+                <div className="bg-white rounded-xl p-4 sm:p-6 space-y-4" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
                   <div className="space-y-2">
                     <Label htmlFor="title" className="text-xs text-muted-foreground">Title</Label>
                     <Input
@@ -338,7 +338,7 @@ export default function NewBlogEditorPage() {
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="Enter your blog title..."
-                      className="text-2xl font-semibold h-auto py-3 border-0 px-0 focus-visible:ring-0 placeholder:text-slate-300"
+                      className="text-xl sm:text-2xl font-semibold h-auto py-2 sm:py-3 border-0 px-0 focus-visible:ring-0 placeholder:text-slate-300"
                     />
                   </div>
 
@@ -364,7 +364,7 @@ export default function NewBlogEditorPage() {
 
         {/* SEO Sidebar */}
         {showSeoPanel && (
-          <div className="fixed right-0 top-14 bottom-0 w-80 bg-white border-l overflow-y-auto">
+          <div className="fixed inset-0 lg:inset-auto lg:right-0 lg:top-14 lg:bottom-0 lg:w-80 bg-white overflow-y-auto z-50 lg:z-auto" style={{ borderLeft: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
             <div className="p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">SEO Settings</h3>

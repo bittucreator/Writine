@@ -65,7 +65,7 @@ type SortOrder = 'asc' | 'desc';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, session, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,22 +136,19 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const accessToken = session?.access_token;
-
       // Fetch blogs
-      const blogsData = await db.get('blogs', {
+      const blogsData = await db.get<Blog>('blogs', {
         select: 'id, title, excerpt, status, created_at, updated_at',
         filters: { user_id: user!.id },
         order: 'updated_at:desc',
-        accessToken,
       });
       
       if (blogsData) {
         setBlogs(blogsData);
         setBlogCounts({
           all: blogsData.length,
-          drafts: blogsData.filter((b: Blog) => b.status === 'draft').length,
-          published: blogsData.filter((b: Blog) => b.status === 'published').length,
+          drafts: blogsData.filter((b) => b.status === 'draft').length,
+          published: blogsData.filter((b) => b.status === 'published').length,
         });
       }
     } catch (error) {
@@ -190,7 +187,7 @@ export default function DashboardPage() {
 
   const handleDelete = async (blog: Blog) => {
     try {
-      await db.delete('blogs', blog.id, session?.access_token);
+      await db.delete('blogs', blog.id);
       
       setBlogs(blogs.filter(b => b.id !== blog.id));
       setBlogCounts(prev => ({
@@ -209,7 +206,7 @@ export default function DashboardPage() {
     try {
       // Delete each blog individually via proxy
       const deletePromises = Array.from(selectedIds).map(id => 
-        db.delete('blogs', id, session?.access_token)
+        db.delete('blogs', id)
       );
       await Promise.all(deletePromises);
       
@@ -232,7 +229,7 @@ export default function DashboardPage() {
 
   const handleStatusChange = async (blog: Blog, newStatus: 'draft' | 'published') => {
     try {
-      await db.update('blogs', blog.id, { status: newStatus, updated_at: new Date().toISOString() }, session?.access_token);
+      await db.update('blogs', blog.id, { status: newStatus, updated_at: new Date().toISOString() });
       
       setBlogs(blogs.map(b => 
         b.id === blog.id ? { ...b, status: newStatus, updated_at: new Date().toISOString() } : b
@@ -254,10 +251,18 @@ export default function DashboardPage() {
   const handleDuplicate = async (blog: Blog) => {
     try {
       // Fetch full blog content
-      const fullBlogData = await db.get('blogs', {
+      interface FullBlog {
+        id: string;
+        created_at: string;
+        updated_at: string;
+        slug: string;
+        title: string;
+        [key: string]: unknown;
+      }
+      
+      const fullBlogData = await db.get<FullBlog>('blogs', {
         select: '*',
         filters: { id: blog.id },
-        accessToken: session?.access_token,
       });
       
       if (!fullBlogData || fullBlogData.length === 0) throw new Error('Blog not found');
@@ -265,7 +270,8 @@ export default function DashboardPage() {
       const fullBlog = fullBlogData[0];
       
       // Only copy fields that exist - exclude id, created_at, updated_at, slug
-      const { id, created_at, updated_at, slug, ...blogData } = fullBlog;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id: _id, created_at: _createdAt, updated_at: _updatedAt, slug: _slug, ...blogData } = fullBlog;
       
       // Generate new slug from title
       const newTitle = `${fullBlog.title} (Copy)`;
@@ -280,7 +286,7 @@ export default function DashboardPage() {
         title: newTitle,
         slug: newSlug,
         status: 'draft',
-      }, session?.access_token);
+      });
       
       fetchData(); // Refresh the list
     } catch (error: unknown) {
@@ -322,11 +328,11 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-white">
       <FloatingNav />
-      <div className="max-w-6xl mx-auto px-6 py-8 pb-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-24">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-1">
-            <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Dashboard</h1>
             <Button onClick={() => router.push('/blog/new')} size="sm" className="bg-[#918df6] hover:bg-[#7b77e0]">
               New Blog
             </Button>
@@ -335,48 +341,48 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
           <button
             onClick={() => setStatusFilter('all')}
-            className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+            className="bg-white rounded-xl p-4 sm:p-5 transition-all hover:bg-slate-50/50"
             style={{ border: statusFilter === 'all' ? '1px solid rgba(145, 141, 246, 0.5)' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
-                  <NotebookText className="w-4.5 h-4.5 text-[#918df6]" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
+                  <NotebookText className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#918df6]" />
                 </div>
-                <span className="text-sm font-medium text-slate-600">All Blogs</span>
+                <span className="text-xs sm:text-sm font-medium text-slate-600">All Blogs</span>
               </div>
-              <p className="text-3xl font-semibold text-slate-900">{blogCounts.all}</p>
+              <p className="text-2xl sm:text-3xl font-semibold text-slate-900">{blogCounts.all}</p>
             </div>
           </button>
           <button
             onClick={() => setStatusFilter('draft')}
-            className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+            className="bg-white rounded-xl p-4 sm:p-5 transition-all hover:bg-slate-50/50"
             style={{ border: statusFilter === 'draft' ? '1px solid rgba(145, 141, 246, 0.5)' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                  <Clock className="w-4.5 h-4.5 text-amber-500" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                  <Clock className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-500" />
                 </div>
-                <span className="text-sm font-medium text-slate-600">Drafts</span>
+                <span className="text-xs sm:text-sm font-medium text-slate-600">Drafts</span>
               </div>
-              <p className="text-3xl font-semibold text-slate-900">{blogCounts.drafts}</p>
+              <p className="text-2xl sm:text-3xl font-semibold text-slate-900">{blogCounts.drafts}</p>
             </div>
           </button>
           <button
             onClick={() => setStatusFilter('published')}
-            className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+            className="bg-white rounded-xl p-4 sm:p-5 transition-all hover:bg-slate-50/50"
             style={{ border: statusFilter === 'published' ? '1px solid rgba(145, 141, 246, 0.5)' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <BadgeCheck className="w-4.5 h-4.5 text-green-500" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <BadgeCheck className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-green-500" />
                 </div>
-                <span className="text-sm font-medium text-slate-600">Published</span>
+                <span className="text-xs sm:text-sm font-medium text-slate-600">Published</span>
               </div>
               <p className="text-3xl font-semibold text-slate-900">{blogCounts.published}</p>
             </div>
@@ -389,7 +395,7 @@ export default function DashboardPage() {
           style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
         >
           {filteredBlogs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4">
               <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
                 <NotebookText className="w-6 h-6 text-muted-foreground" />
               </div>
@@ -413,7 +419,8 @@ export default function DashboardPage() {
               )}
             </div>
           ) : (
-            <Table>
+            <div className="overflow-x-auto">
+            <Table className="min-w-160">
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-8">
@@ -444,7 +451,7 @@ export default function DashboardPage() {
                         )}
                       </button>
                     </TableHead>
-                    <TableHead className="w-[15%]">
+                    <TableHead className="w-[15%] hidden sm:table-cell">
                       <button 
                         onClick={() => handleSort('created_at')}
                         className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -455,7 +462,7 @@ export default function DashboardPage() {
                         )}
                       </button>
                     </TableHead>
-                    <TableHead className="w-[15%]">
+                    <TableHead className="w-[15%] hidden md:table-cell">
                       <button 
                         onClick={() => handleSort('updated_at')}
                         className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -485,7 +492,7 @@ export default function DashboardPage() {
                       <TableCell>
                         <div>
                           <p className="font-medium text-sm line-clamp-1">{blog.title}</p>
-                          <p className="text-xs text-muted-foreground line-clamp-1">{blog.excerpt}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1 hidden sm:block">{blog.excerpt}</p>
                         </div>
                       </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
@@ -501,7 +508,7 @@ export default function DashboardPage() {
                                 ) : (
                                   <Clock className="w-3 h-3 mr-1" />
                                 )}
-                                {blog.status.charAt(0).toUpperCase() + blog.status.slice(1)}
+                                <span className="hidden xs:inline">{blog.status.charAt(0).toUpperCase() + blog.status.slice(1)}</span>
                               </Badge>
                             </button>
                           </DropdownMenuTrigger>
@@ -523,10 +530,10 @@ export default function DashboardPage() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
+                      <TableCell className="text-xs text-muted-foreground hidden sm:table-cell">
                         {formatDate(blog.created_at)}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
+                      <TableCell className="text-xs text-muted-foreground hidden md:table-cell">
                         {formatDate(blog.updated_at)}
                       </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
@@ -567,12 +574,13 @@ export default function DashboardPage() {
                   ))}
                 </TableBody>
               </Table>
-            )}
+            </div>
+          )}
         </div>
 
         {/* Pagination */}
         {filteredBlogs.length > 0 && (
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-4">
               {selectedIds.size > 0 && (
                 <Button

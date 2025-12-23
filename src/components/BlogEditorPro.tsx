@@ -18,7 +18,7 @@ import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table
 import Typography from '@tiptap/extension-typography';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -402,15 +402,8 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `blog-images/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('media')
-        .getPublicUrl(filePath);
+      const result = await db.storage.upload('media', filePath, file);
+      const publicUrl = result.publicUrl;
 
       editor.chain().focus().setImage({ src: publicUrl }).run();
       setShowImageInput(false);
@@ -448,15 +441,8 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `blog-videos/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('media')
-        .getPublicUrl(filePath);
+      const result = await db.storage.upload('media', filePath, file);
+      const publicUrl = result.publicUrl;
 
       // Insert video as HTML since TipTap doesn't have native video support
       editor.chain().focus().insertContent(
@@ -477,7 +463,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
 
   if (!editor) {
     return (
-      <div className="border border-slate-100 rounded-xl overflow-hidden bg-white animate-pulse">
+      <div className="rounded-xl overflow-hidden bg-white animate-pulse" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
         <div className="h-14 bg-slate-100" />
         <div className="h-125 bg-slate-50" />
       </div>
@@ -485,13 +471,13 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
   }
 
   return (
-    <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-sm relative">
+    <div className="rounded-xl overflow-hidden bg-white relative" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
       {/* Slash Command Menu */}
       {showSlashMenu && filteredSlashCommands.length > 0 && (
         <div
           ref={slashMenuRef}
-          className="absolute z-50 bg-white rounded-xl shadow-xl border border-slate-100 py-2 w-72 max-h-80 overflow-y-auto"
-          style={{ top: slashMenuPosition.top, left: slashMenuPosition.left }}
+          className="absolute z-50 bg-white rounded-xl shadow-lg py-2 w-72 max-h-80 overflow-y-auto"
+          style={{ top: slashMenuPosition.top, left: slashMenuPosition.left, border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
         >
           <div className="px-3 py-1.5 text-xs font-medium text-slate-400 uppercase tracking-wide">
             <Sparkles className="w-3 h-3 inline mr-1.5" />
@@ -501,15 +487,15 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
             <button
               key={cmd.id}
               onClick={() => executeSlashCommand(cmd.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
                 index === selectedSlashIndex 
                   ? 'bg-[#918df6]/10 text-[#918df6]' 
                   : 'hover:bg-slate-50 text-slate-700'
               }`}
             >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                index === selectedSlashIndex ? 'bg-[#918df6] text-white' : 'bg-slate-100 text-slate-600'
-              }`}>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                index === selectedSlashIndex ? 'bg-[#918df6] text-white' : 'bg-slate-50 text-slate-600'
+              }`} style={{ border: '0.5px solid rgba(0, 0, 0, 0.06)' }}>
                 <cmd.Icon className="w-4 h-4" />
               </div>
               <div>
@@ -522,7 +508,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
       )}
 
       {/* Toolbar */}
-      <div className="border-b border-slate-100 bg-linear-to-r from-slate-50 to-white p-2">
+      <div className="bg-linear-to-r from-slate-50 to-white p-2" style={{ borderBottom: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
         <div className="flex flex-wrap items-center gap-0.5">
           {/* Text Formatting */}
           <ToolbarButton
@@ -685,8 +671,8 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
               <Type className="w-4 h-4" />
             </ToolbarButton>
             {showColorPicker && (
-              <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-slate-100 z-10">
-                <div className="grid grid-cols-6 gap-1">
+              <div className="absolute top-full left-0 mt-1 p-3 bg-white rounded-xl shadow-lg z-10" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)', width: '168px' }}>
+                <div className="grid grid-cols-6 gap-2">
                   {COLORS.map((color) => (
                     <button
                       key={color}
@@ -694,7 +680,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
                         editor.chain().focus().setColor(color).run();
                         setShowColorPicker(false);
                       }}
-                      className="w-6 h-6 rounded border border-slate-100 hover:scale-110 transition"
+                      className="w-5 h-5 rounded-sm hover:scale-110 transition shrink-0"
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -716,8 +702,8 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
               <Highlighter className="w-4 h-4" />
             </ToolbarButton>
             {showHighlightPicker && (
-              <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-slate-100 z-10">
-                <div className="grid grid-cols-7 gap-1">
+              <div className="absolute top-full left-0 mt-1 p-3 bg-white rounded-xl shadow-lg z-10" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)', width: '182px' }}>
+                <div className="grid grid-cols-7 gap-2">
                   {HIGHLIGHT_COLORS.map((color) => (
                     <button
                       key={color}
@@ -725,7 +711,7 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
                         editor.chain().focus().toggleHighlight({ color }).run();
                         setShowHighlightPicker(false);
                       }}
-                      className="w-6 h-6 rounded border border-slate-100 hover:scale-110 transition"
+                      className="w-5 h-5 rounded-sm hover:scale-110 transition shrink-0"
                       style={{ backgroundColor: color }}
                     />
                   ))}

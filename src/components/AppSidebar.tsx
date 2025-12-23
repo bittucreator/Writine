@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -47,11 +47,10 @@ export function AppSidebar() {
     const loadProfile = async () => {
       if (!user) return;
       try {
-        const { data } = await supabase
-          .from('user_profiles')
-          .select('full_name, avatar_url')
-          .eq('id', user.id)
-          .single();
+        const data = await db.getOne<{ full_name: string; avatar_url: string | null }>('user_profiles', { 
+          filters: { id: user.id }, 
+          select: 'full_name, avatar_url' 
+        });
         
         if (data) {
           setDisplayName(data.full_name || '');
@@ -68,11 +67,10 @@ export function AppSidebar() {
   const refreshProfile = async () => {
     if (!user) return;
     try {
-      const { data } = await supabase
-        .from('user_profiles')
-        .select('full_name, avatar_url')
-        .eq('id', user.id)
-        .single();
+      const data = await db.getOne<{ full_name: string; avatar_url: string | null }>('user_profiles', { 
+        filters: { id: user.id }, 
+        select: 'full_name, avatar_url' 
+      });
       
       if (data) {
         setDisplayName(data.full_name || '');

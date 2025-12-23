@@ -141,5 +141,62 @@ export const POST = Webhooks({
         console.error('Error canceling subscription:', error);
       }
     }
+
+    // Handle payment failed events - pause account after failures
+    if (payload.type === 'order.refunded' || payload.type === 'subscription.revoked') {
+      const data = payload.data as unknown as {
+        id: string;
+        customer: { email: string } | null;
+      };
+      
+      console.log('Payment issue detected:', payload.type, data.id);
+      
+      const customerEmail = data.customer?.email;
+      if (!customerEmail) return;
+
+      try {
+        const { data: users } = await supabaseAdmin.auth.admin.listUsers();
+        const user = users.users.find(u => u.email === customerEmail);
+        
+        if (!user) return;
+
+        // Get current subscription to check failure count
+        const { data: currentSub } = await supabaseAdmin
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        const failureCount = (currentSub?.payment_failure_count || 0) + 1;
+
+        // After 3 failures, pause the account
+        if (failureCount >= 3) {
+          await supabaseAdmin
+            .from('subscriptions')
+            .update({
+              status: 'paused',
+              payment_failure_count: failureCount,
+              paused_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', user.id);
+
+          console.log('Account paused due to payment failures for user:', user.id);
+        } else {
+          // Increment failure count
+          await supabaseAdmin
+            .from('subscriptions')
+            .update({
+              payment_failure_count: failureCount,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', user.id);
+
+          console.log('Payment failure recorded for user:', user.id, 'Count:', failureCount);
+        }
+      } catch (error) {
+        console.error('Error handling payment failure:', error);
+      }
+    }
   },
 });

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Tooltip,
@@ -31,11 +31,10 @@ export function FloatingNav() {
     const loadProfile = async () => {
       if (!user) return;
       try {
-        const { data } = await supabase
-          .from('user_profiles')
-          .select('full_name, avatar_url')
-          .eq('id', user.id)
-          .single();
+        const data = await db.getOne<{ full_name: string; avatar_url: string }>('user_profiles', {
+          select: 'full_name, avatar_url',
+          filters: { id: user.id }
+        });
         
         if (data) {
           setDisplayName(data.full_name || '');
@@ -68,23 +67,23 @@ export function FloatingNav() {
   return (
     <TooltipProvider delayDuration={0}>
       {/* Floating Bottom Nav */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] sm:w-auto max-w-md sm:max-w-none">
         <div 
-          className="flex items-center gap-1 px-2 py-2 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-slate-200/50"
+          className="flex items-center justify-between sm:justify-start gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg shadow-slate-200/50"
           style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
         >
           {/* Logo */}
-          <div className="flex items-center justify-center w-11 h-11">
+          <div className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11">
             <Image 
               src="/writine-dark.svg" 
               alt="Writine" 
               width={24} 
               height={24}
-              className="w-6 h-6"
+              className="w-5 h-5 sm:w-6 sm:h-6"
             />
           </div>
 
-          <div className="w-px h-6 bg-slate-200 mx-1" />
+          <div className="hidden sm:block w-px h-6 bg-slate-200 mx-1" />
 
           {/* Nav Items */}
           {navItems.map((item) => (
@@ -93,40 +92,40 @@ export function FloatingNav() {
                 <button
                   onClick={() => router.push(item.path)}
                   className={`
-                    flex items-center justify-center w-11 h-11 rounded-xl transition-all
+                    flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl transition-all
                     ${isActive(item.path) 
-                      ? 'text-[#918df6]' 
+                      ? 'text-[#918df6] bg-[#918df6]/10 sm:bg-transparent' 
                       : 'hover:bg-slate-100 text-slate-500 hover:text-slate-700'
                     }
                   `}
                 >
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="top" className="bg-slate-900 text-white border-0">
+              <TooltipContent side="top" className="bg-slate-900 text-white border-0 hidden sm:block">
                 <p>{item.label}</p>
               </TooltipContent>
             </Tooltip>
           ))}
 
-          <div className="w-px h-6 bg-slate-200 mx-1" />
+          <div className="hidden sm:block w-px h-6 bg-slate-200 mx-1" />
 
           {/* User Profile */}
           <Tooltip>
             <TooltipTrigger asChild>
               <button 
                 onClick={() => router.push('/profile')}
-                className="flex items-center justify-center w-11 h-11 rounded-xl hover:bg-slate-100 transition-colors"
+                className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl hover:bg-slate-100 transition-colors"
               >
-                <Avatar className="w-7 h-7 border-2 border-white shadow-sm">
+                <Avatar className="w-6 h-6 sm:w-7 sm:h-7 border-2 border-white shadow-sm">
                   <AvatarImage src={avatarUrl || undefined} alt={userName} />
-                  <AvatarFallback className="text-xs bg-[#918df6] text-white">
+                  <AvatarFallback className="text-[10px] sm:text-xs bg-[#918df6] text-white">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
               </button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="bg-slate-900 text-white border-0">
+            <TooltipContent side="top" className="bg-slate-900 text-white border-0 hidden sm:block">
               <p>{userName}</p>
             </TooltipContent>
           </Tooltip>

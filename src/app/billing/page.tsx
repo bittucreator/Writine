@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { FloatingNav } from '@/components/FloatingNav';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ import {
   ExternalLink,
   AlertCircle,
   CheckCircle,
+  PauseCircle,
 } from 'lucide-react';
 
 interface Plan {
@@ -36,30 +37,20 @@ interface Subscription {
   plan: string;
   current_period_end: string | null;
   polar_customer_id: string | null;
+  payment_failure_count?: number;
+  paused_at?: string | null;
 }
 
 const POLAR_PRO_PRODUCT_ID = process.env.NEXT_PUBLIC_POLAR_PRO_PRODUCT_ID || '';
 
 const PLANS: Plan[] = [
   {
-    id: 'free',
-    name: 'Free Trial',
-    price: 0,
-    description: '3 days free trial',
-    features: [
-      '3 days free access',
-      'AI blog generation',
-      'Basic SEO tools',
-      'Standard support',
-    ],
-    icon: Zap,
-  },
-  {
     id: 'pro',
     name: 'Pro',
     price: 20,
-    description: 'Unlimited access',
+    description: '7-day free trial, then $20/month',
     features: [
+      '7-day free trial with full access',
       'Unlimited blog generation',
       'Advanced AI models',
       'Full SEO optimization',
@@ -110,15 +101,9 @@ function BillingContent() {
     if (!user) return;
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching subscription:', error);
-      }
+      const data = await db.getOne<Subscription>('subscriptions', {
+        filters: { user_id: user.id }
+      });
       
       setSubscription(data);
     } catch (error) {
@@ -157,7 +142,7 @@ function BillingContent() {
     });
   };
 
-  const currentPlan = subscription?.status === 'active' ? 'pro' : 'free';
+  const currentPlan = subscription?.status === 'active' ? 'pro' : subscription?.status === 'paused' ? 'paused' : 'free';
 
   if (authLoading || !user) {
     return (
@@ -237,6 +222,75 @@ function BillingContent() {
     </div>
   );
 
+  const renderPausedBilling = () => (
+    <div className="space-y-6">
+      <div 
+        className="flex items-center gap-3 p-5 bg-red-50 rounded-xl"
+        style={{ border: '0.5px solid rgba(239, 68, 68, 0.3)' }}
+      >
+        <PauseCircle className="w-6 h-6 text-red-600" />
+        <div>
+          <p className="font-semibold text-red-800">Your Account is Paused</p>
+          <p className="text-sm text-red-600">Please update your payment method to continue using Writine</p>
+        </div>
+      </div>
+
+      <div 
+        className="bg-white rounded-xl p-5"
+        style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-slate-900">Payment Issue</h3>
+          <Badge variant="destructive">Paused</Badge>
+        </div>
+        
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">
+            We were unable to process your payment after multiple attempts. Your account features are temporarily paused until payment is resolved.
+          </p>
+          
+          <div className="bg-slate-50 rounded-lg p-4">
+            <p className="text-sm font-medium text-slate-700 mb-2">What you need to do:</p>
+            <ol className="text-sm text-slate-600 space-y-1 list-decimal list-inside">
+              <li>Update your payment method on Polar</li>
+              <li>Ensure your card has sufficient funds</li>
+              <li>Your access will be restored automatically once payment succeeds</li>
+            </ol>
+          </div>
+          
+          <Button
+            className="w-full bg-[#918df6] hover:bg-[#7b77e0]"
+            onClick={handleManageSubscription}
+          >
+            <ExternalLink className="w-4 h-4 mr-2" />
+            Update Payment Method
+          </Button>
+        </div>
+      </div>
+
+      <div 
+        className="bg-white rounded-xl p-5"
+        style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
+      >
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Your Pro Features (Currently Paused)</h3>
+        <ul className="space-y-3 opacity-50">
+          {PLANS.find(p => p.id === 'pro')?.features.map((feature, idx) => (
+            <li key={idx} className="flex items-center gap-3 text-sm text-slate-700">
+              <Check className="w-5 h-5 text-slate-400 shrink-0" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="text-center pt-4">
+        <p className="text-xs text-slate-400">
+          Need help? Contact support@writine.com
+        </p>
+      </div>
+    </div>
+  );
+
   const renderFreeBilling = () => (
     <div className="space-y-6">
       <div 
@@ -245,29 +299,21 @@ function BillingContent() {
       >
         <AlertCircle className="w-6 h-6 text-amber-600" />
         <div>
-          <p className="font-semibold text-amber-800">You&apos;re on the Free Trial</p>
-          <p className="text-sm text-amber-600">Upgrade to Pro for unlimited access</p>
+          <p className="font-semibold text-amber-800">Get Started with Writine Pro</p>
+          <p className="text-sm text-amber-600">Start your 7-day free trial with full access to all features</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="max-w-md mx-auto">
         {PLANS.map((plan) => (
           <div
             key={plan.id}
-            className={`relative bg-white rounded-xl p-5 transition-all ${
-              plan.popular ? '' : 'hover:bg-slate-50/50'
-            }`}
-            style={{ 
-              border: plan.popular 
-                ? '1px solid rgba(145, 141, 246, 0.5)' 
-                : '0.5px solid rgba(0, 0, 0, 0.08)' 
-            }}
+            className="relative bg-white rounded-xl p-6 transition-all"
+            style={{ border: '1px solid rgba(145, 141, 246, 0.5)' }}
           >
-            {plan.popular && (
-              <Badge className="absolute -top-2 right-4 bg-[#918df6]">
-                Recommended
-              </Badge>
-            )}
+            <Badge className="absolute -top-2 right-4 bg-[#918df6]">
+              7-Day Free Trial
+            </Badge>
             
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
@@ -280,14 +326,11 @@ function BillingContent() {
             </div>
 
             <div className="mb-6">
-              {plan.price === 0 ? (
-                <p className="text-3xl font-bold text-slate-900">Free</p>
-              ) : (
-                <p className="text-3xl font-bold text-slate-900">
-                  ${plan.price}
-                  <span className="text-base font-normal text-slate-500">/mo</span>
-                </p>
-              )}
+              <p className="text-3xl font-bold text-slate-900">
+                ${plan.price}
+                <span className="text-base font-normal text-slate-500">/mo</span>
+              </p>
+              <p className="text-xs text-slate-500 mt-1">after 7-day free trial</p>
             </div>
 
             <ul className="space-y-2 mb-6">
@@ -300,20 +343,17 @@ function BillingContent() {
             </ul>
 
             <Button
-              variant={plan.id === 'free' ? 'outline' : 'default'}
-              className={`w-full ${plan.id !== 'free' ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}`}
-              onClick={() => plan.id !== 'free' && handleUpgrade(plan)}
-              disabled={plan.id === 'free' || upgrading}
+              className="w-full bg-[#918df6] hover:bg-[#7b77e0]"
+              onClick={() => handleUpgrade(plan)}
+              disabled={upgrading}
             >
-              {upgrading && plan.id !== 'free' ? (
+              {upgrading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Processing...
                 </>
-              ) : plan.id === 'free' ? (
-                'Current Plan'
               ) : (
-                'Upgrade to Pro'
+                'Start Free Trial'
               )}
             </Button>
           </div>
@@ -334,15 +374,17 @@ function BillingContent() {
   return (
     <div className="min-h-screen bg-white">
       <FloatingNav />
-      <div className="max-w-4xl mx-auto px-6 py-8 pb-24">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-24">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {currentPlan === 'pro' ? 'Billing & Subscription' : 'Billing & Plans'}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+            {currentPlan === 'pro' ? 'Billing & Subscription' : currentPlan === 'paused' ? 'Account Paused' : 'Billing & Plans'}
           </h1>
           <p className="text-sm text-slate-500">
             {currentPlan === 'pro' 
               ? 'Manage your subscription and payment details' 
+              : currentPlan === 'paused'
+              ? 'Update your payment method to restore access'
               : 'Choose the plan that works best for you'}
           </p>
         </div>
@@ -354,6 +396,8 @@ function BillingContent() {
             </div>
           ) : currentPlan === 'pro' ? (
             renderProBilling()
+          ) : currentPlan === 'paused' ? (
+            renderPausedBilling()
           ) : (
             renderFreeBilling()
           )}

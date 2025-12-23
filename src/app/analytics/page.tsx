@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { FloatingNav } from '@/components/FloatingNav';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -71,10 +71,10 @@ export default function AnalyticsPage() {
   const fetchData = async () => {
     try {
       // Fetch blog counts
-      const { data: blogs } = await supabase
-        .from('blogs')
-        .select('id, status')
-        .eq('user_id', user!.id);
+      const blogs = await db.get<{ id: string; status: string }>('blogs', {
+        select: 'id, status',
+        filters: { user_id: user!.id }
+      });
       
       if (blogs) {
         setBlogCounts({
@@ -109,69 +109,69 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-white">
       <FloatingNav />
-      <div className="max-w-6xl mx-auto px-6 py-8 pb-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-24">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Analytics</h1>
           <p className="text-sm text-slate-500">Track your blog performance</p>
         </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
             <div 
-              className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+              className="bg-white rounded-xl p-4 sm:p-5 transition-all hover:bg-slate-50/50"
               style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
-                    <Eye className="w-4.5 h-4.5 text-[#918df6]" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
+                    <Eye className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#918df6]" />
                   </div>
-                  <span className="text-sm font-medium text-slate-600">Total Views</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-600">Total Views</span>
                 </div>
-                <p className="text-3xl font-semibold text-slate-900">{totalViews.toLocaleString()}</p>
+                <p className="text-2xl sm:text-3xl font-semibold text-slate-900">{totalViews.toLocaleString()}</p>
               </div>
             </div>
             <div 
-              className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+              className="bg-white rounded-xl p-4 sm:p-5 transition-all hover:bg-slate-50/50"
               style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center">
-                    <FileText className="w-4.5 h-4.5 text-green-500" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <FileText className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-green-500" />
                   </div>
-                  <span className="text-sm font-medium text-slate-600">Total Blogs</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-600">Total Blogs</span>
                 </div>
-                <p className="text-3xl font-semibold text-slate-900">{blogCounts.all}</p>
+                <p className="text-2xl sm:text-3xl font-semibold text-slate-900">{blogCounts.all}</p>
               </div>
             </div>
             <div 
-              className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+              className="bg-white rounded-xl p-4 sm:p-5 transition-all hover:bg-slate-50/50"
               style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <TrendingUp className="w-4.5 h-4.5 text-blue-500" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-blue-500" />
                   </div>
-                  <span className="text-sm font-medium text-slate-600">Avg. Daily Views</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-600">Avg. Daily</span>
                 </div>
-                <p className="text-3xl font-semibold text-slate-900">{avgViews}</p>
+                <p className="text-2xl sm:text-3xl font-semibold text-slate-900">{avgViews}</p>
               </div>
             </div>
             <div 
-              className="bg-white rounded-xl p-5 transition-all hover:bg-slate-50/50"
+              className="bg-white rounded-xl p-4 sm:p-5 transition-all hover:bg-slate-50/50"
               style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                    <BarChart3 className="w-4.5 h-4.5 text-amber-500" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <BarChart3 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-500" />
                   </div>
-                  <span className="text-sm font-medium text-slate-600">Published Blogs</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-600">Published</span>
                 </div>
-                <p className="text-3xl font-semibold text-slate-900">{blogCounts.published}</p>
+                <p className="text-2xl sm:text-3xl font-semibold text-slate-900">{blogCounts.published}</p>
               </div>
             </div>
           </div>
@@ -184,9 +184,9 @@ export default function AnalyticsPage() {
             </TabsList>
 
             <TabsContent value="weekly" className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {/* Area Chart */}
-                <Card className="col-span-2 rounded-xl" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
+                <Card className="lg:col-span-2 rounded-xl" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">Views This Week</CardTitle>
                     <CardDescription className="text-xs">Daily page views</CardDescription>

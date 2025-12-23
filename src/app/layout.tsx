@@ -16,8 +16,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Writine - AI Blog Writing Platform",
+  title: "Writine - AI Blog Writing",
   description: "Create SEO-optimized blog content with AI",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

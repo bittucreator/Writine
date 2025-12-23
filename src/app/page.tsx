@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Footer } from '@/components/Footer';
 import {
   Accordion,
   AccordionContent,
@@ -12,15 +13,12 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import {
-  Sparkles,
   Check,
   Globe,
   Search,
   PenTool,
   Layout,
   BarChart3,
-  Github,
-  Twitter,
   Wand2,
 } from 'lucide-react';
 
@@ -59,21 +57,12 @@ const FEATURES = [
 
 const PRICING = [
   {
-    name: 'Free Trial',
-    price: '$0',
-    period: '3 days',
-    description: '3 days free trial',
-    features: ['3 days free access', 'AI blog generation', 'Basic SEO tools', 'Standard support'],
-    cta: 'Start Free Trial',
-    highlighted: false,
-  },
-  {
     name: 'Pro',
     price: '$20',
     period: '/month',
-    description: 'Unlimited access',
-    features: ['Unlimited blog generation', 'Advanced AI models', 'Full SEO optimization', 'Custom domains', 'Priority support', 'Analytics dashboard'],
-    cta: 'Upgrade to Pro',
+    description: '7-day free trial, then $20/month',
+    features: ['7-day free trial with full access', 'Unlimited blog generation', 'Advanced AI models', 'Full SEO optimization', 'Custom domains', 'Priority support', 'Analytics dashboard'],
+    cta: 'Start Free Trial',
     highlighted: true,
   },
 ];
@@ -123,27 +112,27 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-20 px-6">
+      <section className="pt-16 sm:pt-24 pb-12 sm:pb-20 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <Badge className="mb-6 bg-[#918df6]/10 text-[#918df6] hover:bg-[#918df6]/20 border-0">
+          <Badge className="mb-4 sm:mb-6 bg-[#918df6]/10 text-[#918df6] hover:bg-[#918df6]/20 border-0">
             From idea to published in minutes
           </Badge>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-slate-900 mb-4 sm:mb-6 leading-tight tracking-tight">
             Write, publish, grow
             <br />
             your blog with AI
           </h1>
 
-          <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-xl text-slate-600 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0">
             Create SEO-optimized blog content in minutes. From idea to
             <br className="hidden md:block" />
             published—all in one beautiful editor.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4 sm:px-0">
             <Link href="/signup">
-              <Button size="lg" className="bg-[#918df6] hover:bg-[#7b77e0] h-12 px-8 text-base rounded-full">
+              <Button size="lg" className="bg-[#918df6] hover:bg-[#7b77e0] h-12 px-8 text-base rounded-full w-full sm:w-auto">
                 Start Writing Free
               </Button>
             </Link>
@@ -177,20 +166,20 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 px-6">
+      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <Badge className="mb-4 bg-[#918df6]/10 text-[#918df6] border-0">Features</Badge>
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-4">
               Everything you need to create amazing content
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
               Powerful AI tools combined with a beautiful writing experience. 
               No more switching between apps.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {FEATURES.map((feature) => (
               <div 
                 key={feature.title} 
@@ -209,16 +198,16 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-24 px-6 bg-white">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <Badge className="mb-4 bg-[#918df6]/10 text-[#918df6] border-0">How It Works</Badge>
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-4">
               From idea to published in 3 steps
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
               { step: '1', title: 'Enter your topic', description: 'Tell us what you want to write about. Add keywords and select your preferred tone.' },
               { step: '2', title: 'Customize & generate', description: 'Review the AI-generated outline, make adjustments, and let AI write your blog.' },
@@ -242,19 +231,19 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 px-6 bg-white">
+      <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <Badge className="mb-4 bg-[#918df6]/10 text-[#918df6] border-0">Pricing</Badge>
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-4">
               Simple, transparent pricing
             </h2>
-            <p className="text-lg text-slate-600">
+            <p className="text-base sm:text-lg text-slate-600">
               Start free, upgrade when you need more
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto">
             {PRICING.map((plan) => (
               <div 
                 key={plan.name} 
@@ -294,14 +283,14 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 px-6 bg-white">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <Badge className="mb-4 bg-[#918df6]/10 text-[#918df6] border-0">FAQ</Badge>
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-4">
               Frequently asked questions
             </h2>
-            <p className="text-lg text-slate-600">
+            <p className="text-base sm:text-lg text-slate-600">
               Everything you need to know about Writine
             </p>
           </div>
@@ -322,7 +311,7 @@ export default function LandingPage() {
               },
               {
                 question: 'Is there a free trial?',
-                answer: 'Yes! You get a 3-day free trial with full access to all features. No credit card required to start.',
+                answer: 'Yes! You get a 7-day free trial with full access to all Pro features. Add a payment method to start, and you\'ll only be charged after the trial ends. Cancel anytime.',
               },
               {
                 question: 'Can I use my own domain?',
@@ -352,18 +341,18 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6">
+      <section className="py-16 sm:py-24 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4 text-slate-900">
+          <h2 className="text-2xl sm:text-4xl font-bold mb-4 text-slate-900">
             Ready to write better content?
           </h2>
-          <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-slate-600 mb-6 sm:mb-8 max-w-2xl mx-auto">
             Join thousands of content creators using Writine to produce 
             SEO-optimized blogs in minutes, not hours.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link href="/signup">
-              <Button size="lg" className="bg-[#918df6] text-white hover:bg-[#7d79e0] h-12 px-8 rounded-full">
+              <Button size="lg" className="bg-[#918df6] text-white hover:bg-[#7d79e0] h-12 px-8 rounded-full w-full sm:w-auto">
                 Get Started Free
               </Button>
             </Link>
@@ -381,37 +370,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-6 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#918df6] rounded-lg flex items-center justify-center">
-                <Image src="/writine-light.svg" alt="Writine" width={20} height={20} />
-              </div>
-              <span className="font-semibold">Writine</span>
-            </div>
-
-            <div className="flex items-center gap-6 text-sm text-slate-600">
-              <Link href="#features" className="hover:text-slate-900">Features</Link>
-              <Link href="#pricing" className="hover:text-slate-900">Pricing</Link>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Link href="https://twitter.com" target="_blank" className="text-slate-400 hover:text-slate-600">
-                <Twitter className="w-5 h-5" />
-              </Link>
-              <Link href="https://github.com/bittucreator/Writine" target="_blank" className="text-slate-400 hover:text-slate-600">
-                <Github className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-8 text-center text-sm text-slate-500">
-            <p>© {new Date().getFullYear()} Writine.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

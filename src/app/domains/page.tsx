@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -24,9 +24,7 @@ import {
   Loader2,
   KeyRound,
   Copy,
-  AlertCircle,
   ExternalLink,
-  Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -50,7 +48,7 @@ export default function DomainsPage() {
   const [newDomain, setNewDomain] = useState('');
   const [adding, setAdding] = useState(false);
   const [verifying, setVerifying] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [, setCopied] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -69,21 +67,20 @@ export default function DomainsPage() {
     setLoading(true);
     try {
       // Fetch user profile for username
-      const { data: profileData } = await supabase
-        .from('user_profiles')
-        .select('username')
-        .eq('id', user!.id)
-        .single();
+      const profileData = await db.getOne<{ username: string }>('user_profiles', {
+        select: 'username',
+        filters: { id: user!.id }
+      });
       
       if (profileData?.username) {
         setUsername(profileData.username);
       }
 
       // Fetch blog counts
-      const { data: blogs } = await supabase
-        .from('blogs')
-        .select('id, status')
-        .eq('user_id', user!.id);
+      const blogs = await db.get<{ id: string; status: string }>('blogs', {
+        select: 'id, status',
+        filters: { user_id: user!.id }
+      });
       
       if (blogs) {
         setBlogCounts({
@@ -94,11 +91,10 @@ export default function DomainsPage() {
       }
 
       // Fetch domains
-      const { data } = await supabase
-        .from('custom_domains')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
+      const data = await db.get<Domain>('custom_domains', {
+        filters: { user_id: user?.id },
+        order: 'created_at:desc'
+      });
 
       if (data) setDomains(data);
     } catch (error) {
@@ -113,13 +109,11 @@ export default function DomainsPage() {
 
     setAdding(true);
     try {
-      const { error } = await supabase.from('custom_domains').insert({
+      await db.insert('custom_domains', {
         user_id: user?.id,
         domain: newDomain.toLowerCase().trim(),
         status: 'pending',
       });
-
-      if (error) throw error;
 
       toast.success('Domain added! Configure DNS to verify.');
       setNewDomain('');
@@ -135,12 +129,7 @@ export default function DomainsPage() {
 
   const handleDeleteDomain = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('custom_domains')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await db.delete('custom_domains', id);
       setDomains(domains.filter((d) => d.id !== id));
       toast.success('Domain removed');
     } catch (error) {
@@ -162,7 +151,6 @@ export default function DomainsPage() {
       // Method 1: Check CNAME record (for subdomains)
       const cnameResponse = await fetch(`https://dns.google/resolve?name=${domain.domain}&type=CNAME`);
       const cnameData = await cnameResponse.json();
-      console.log('CNAME data:', cnameData);
       const hasCname = cnameData.Answer?.some((record: { data: string }) => 
         record.data?.toLowerCase().includes('writine.com')
       );
@@ -171,22 +159,18 @@ export default function DomainsPage() {
       // User should add: TXT record with value "writine-verify"
       const txtResponse = await fetch(`https://dns.google/resolve?name=${domain.domain}&type=TXT`);
       const txtData = await txtResponse.json();
-      console.log('TXT data:', JSON.stringify(txtData, null, 2));
       
       let hasTxt = false;
       if (txtData.Answer && Array.isArray(txtData.Answer)) {
         for (const record of txtData.Answer) {
-          console.log('Checking record:', record.data);
           // The data can come with or without quotes
           const value = String(record.data || '').replace(/^"|"$/g, '').replace(/\\"/g, '"').trim().toLowerCase();
-          console.log('Cleaned value:', value);
           if (value.includes('writine-verify')) {
             hasTxt = true;
             break;
           }
         }
       }
-      console.log('hasCname:', hasCname, 'hasTxt:', hasTxt);
 
       // Method 3: Check if domain resolves and we can reach it
       // For now, if they have CNAME or TXT, consider it verified
@@ -194,12 +178,7 @@ export default function DomainsPage() {
 
       const newStatus = isVerified ? 'verified' : 'pending';
       
-      const { error } = await supabase
-        .from('custom_domains')
-        .update({ status: newStatus })
-        .eq('id', domain.id);
-
-      if (error) throw error;
+      await db.update('custom_domains', domain.id, { status: newStatus });
 
       setDomains(domains.map(d => 
         d.id === domain.id ? { ...d, status: newStatus } : d
@@ -220,21 +199,7 @@ export default function DomainsPage() {
     }
   };
 
-  const openDnsRecords = (domain: Domain) => {
-    setSelectedDomain(domain);
-    setShowDnsModal(true);
-  };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'verified':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'failed':
-        return <AlertCircle className="w-4 h-4 text-red-600" />;
-      default:
-        return <Clock className="w-4 h-4 text-amber-600" />;
-    }
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -258,10 +223,10 @@ export default function DomainsPage() {
   return (
     <div className="min-h-screen bg-white">
       <FloatingNav />
-      <div className="max-w-4xl mx-auto px-6 py-8 pb-24">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-24">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight">Publishing</h1>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Publishing</h1>
           <p className="text-sm text-slate-500">Your blog URLs and custom domains</p>
         </div>
 

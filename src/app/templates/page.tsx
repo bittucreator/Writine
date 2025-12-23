@@ -258,17 +258,17 @@ export default function TemplatesPage() {
   return (
     <div className="min-h-screen bg-white">
       <FloatingNav />
-      <div className="max-w-6xl mx-auto px-6 py-8 pb-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-24">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight">Templates</h1>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Templates</h1>
           <p className="text-sm text-slate-500">Start with a pre-made template to speed up your writing</p>
         </div>
 
         {/* Search and Filters */}
-        <div className="mb-8 flex items-center justify-between gap-4">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           {/* Search */}
-          <div className="relative w-80">
+          <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               placeholder="Search templates..."
@@ -280,7 +280,7 @@ export default function TemplatesPage() {
           </div>
 
           {/* Category Tabs */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 overflow-x-auto pb-1">
             {CATEGORIES.map((category) => (
               <button
                 key={category.id}
@@ -301,7 +301,7 @@ export default function TemplatesPage() {
         {/* Templates Grid */}
         <div className="w-full">
           {filteredTemplates.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {filteredTemplates.map((template) => (
                 <div
                   key={template.id}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
@@ -51,13 +51,12 @@ export default function SubdomainPage() {
 
     try {
       // First, find the user by username
-      const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('username', username.toLowerCase())
-        .single();
+      const profile = await db.getOne<UserProfile>('user_profiles', {
+        select: '*',
+        filters: { username: username.toLowerCase() }
+      });
 
-      if (profileError || !profile) {
+      if (!profile) {
         setError('User not found');
         setLoading(false);
         return;
@@ -66,38 +65,32 @@ export default function SubdomainPage() {
       setUserProfile(profile);
       
       // Check if user is Pro
-      const { data: subscription } = await supabase
-        .from('subscriptions')
-        .select('status, plan')
-        .eq('user_id', profile.id)
-        .eq('status', 'active')
-        .single();
+      const subscription = await db.getOne<{ status: string; plan: string }>('subscriptions', {
+        select: 'status, plan',
+        filters: { user_id: profile.id, status: 'active' }
+      });
       
       setIsPro(subscription?.plan === 'pro');
 
       if (blogSlug) {
         // Load specific blog
-        const { data: blogData, error: blogError } = await supabase
-          .from('blogs')
-          .select('*')
-          .eq('user_id', profile.id)
-          .eq('slug', blogSlug)
-          .eq('status', 'published')
-          .single();
+        const blogData = await db.getOne<Blog>('blogs', {
+          select: '*',
+          filters: { user_id: profile.id, slug: blogSlug, status: 'published' }
+        });
 
-        if (blogError || !blogData) {
+        if (!blogData) {
           setError('Blog not found');
         } else {
           setBlog(blogData);
         }
       } else {
         // Load all published blogs for this user
-        const { data: blogsData } = await supabase
-          .from('blogs')
-          .select('*')
-          .eq('user_id', profile.id)
-          .eq('status', 'published')
-          .order('created_at', { ascending: false });
+        const blogsData = await db.get<Blog>('blogs', {
+          select: '*',
+          filters: { user_id: profile.id, status: 'published' },
+          order: 'created_at:desc'
+        });
 
         setBlogs(blogsData || []);
       }

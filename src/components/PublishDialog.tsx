@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, startTransition } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -68,14 +68,17 @@ export function PublishDialog({
 
   const loadDomains = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('custom_domains')
-      .select('*')
-      .eq('status', 'verified')
-      .order('created_at', { ascending: false });
+    try {
+      const data = await db.get<Domain>('custom_domains', {
+        filters: { status: 'verified' },
+        order: 'created_at:desc'
+      });
 
-    if (data) {
-      setDomains(data);
+      if (data) {
+        setDomains(data);
+      }
+    } catch (error) {
+      console.error('Error loading domains:', error);
     }
     setLoading(false);
   }, []);
@@ -180,7 +183,7 @@ export function PublishDialog({
             ) : (
               <RadioGroup value={selectedDomain} onValueChange={setSelectedDomain}>
                 {/* Default Domain */}
-                <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-slate-50 cursor-pointer">
+                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
                   <RadioGroupItem value="none" id="domain-none" />
                   <Label htmlFor="domain-none" className="flex-1 cursor-pointer">
                     <div className="flex items-center gap-2">
@@ -198,7 +201,8 @@ export function PublishDialog({
                 {verifiedDomains.map((domain) => (
                   <div
                     key={domain.id}
-                    className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-slate-50 cursor-pointer"
+                    className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer"
+                    style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
                   >
                     <RadioGroupItem value={domain.id} id={`domain-${domain.id}`} />
                     <Label htmlFor={`domain-${domain.id}`} className="flex-1 cursor-pointer">
@@ -215,7 +219,7 @@ export function PublishDialog({
                 ))}
 
                 {verifiedDomains.length === 0 && (
-                  <div className="p-4 rounded-lg border border-dashed text-center">
+                  <div className="p-4 rounded-lg text-center" style={{ border: '1px dashed rgba(0, 0, 0, 0.12)' }}>
                     <Globe className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                     <p className="text-sm text-muted-foreground mb-2">No custom domains connected</p>
                     <Button

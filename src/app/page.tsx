@@ -134,17 +134,9 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4 sm:px-0">
             <Link href="/signup">
               <Button size="lg" className="bg-[#8345dd] hover:bg-[#7b77e0] h-12 px-8 text-base rounded-full w-full sm:w-auto">
-                Start Writing Free
+                Start 7 Days Free Trial
               </Button>
             </Link>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="h-12 px-8 text-base border-0 shadow-none rounded-full"
-              style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
-            >
-              Watch Demo
-            </Button>
           </div>
 
           {/* Hero Image/Preview */}
@@ -354,17 +346,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link href="/signup">
               <Button size="lg" className="bg-[#8345dd] text-white hover:bg-[#7d79e0] h-12 px-8 rounded-full w-full sm:w-auto">
-                Get Started Free
-              </Button>
-            </Link>
-            <Link href="https://github.com/bittucreator/Writine" target="_blank">
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="text-slate-700 hover:bg-slate-50 h-12 px-8 border-0 shadow-none rounded-full"
-                style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
-              >
-                Star on GitHub
+                Start 7 Days Free Trial
               </Button>
             </Link>
           </div>

@@ -65,7 +65,7 @@ type SortOrder = 'asc' | 'desc';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isEmailConfirmed } = useAuth();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [filteredBlogs, setFilteredBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,8 +96,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login');
+    } else if (!authLoading && user && !isEmailConfirmed) {
+      router.push('/verify-email');
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, isEmailConfirmed, router]);
 
   useEffect(() => {
     if (user) {

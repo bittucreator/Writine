@@ -9,13 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail, ArrowLeft } from 'lucide-react';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [step, setStep] = useState<'email' | 'details'>('email');
+  const [step, setStep] = useState<'email' | 'details' | 'confirmation'>('email');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -54,7 +54,9 @@ export default function SignupPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push('/dashboard');
+      // Show confirmation screen instead of redirecting
+      setStep('confirmation');
+      setLoading(false);
     }
   };
 
@@ -78,7 +80,50 @@ export default function SignupPage() {
           </div>
         </div>
 
-        {/* Card */}
+        {/* Confirmation Screen */}
+        {step === 'confirmation' ? (
+          <Card>
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-[#8345dd]/10 rounded-full flex items-center justify-center">
+                  <Mail className="w-8 h-8 text-[#8345dd]" />
+                </div>
+              </div>
+              <CardTitle>Check your email</CardTitle>
+              <CardDescription>
+                We sent a verification link to
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-center font-medium text-sm">{email}</p>
+              <p className="text-center text-sm text-muted-foreground">
+                Click the link in your email to verify your account and get started.
+              </p>
+              <div className="pt-4 space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => window.open('https://gmail.com', '_blank')}
+                >
+                  Open Gmail
+                </Button>
+                <button
+                  onClick={() => {
+                    setStep('email');
+                    setEmail('');
+                    setPassword('');
+                    setFullName('');
+                  }}
+                  className="flex items-center justify-center gap-2 w-full text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Use a different email
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+        /* Card */
         <Card>
           <CardHeader className="text-center">
             <CardTitle>Create an account</CardTitle>
@@ -195,6 +240,7 @@ export default function SignupPage() {
             </div>
           </CardContent>
         </Card>
+        )}
       </div>
     </div>
   );

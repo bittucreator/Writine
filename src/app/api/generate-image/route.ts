@@ -5,11 +5,13 @@ import { createClient } from '@supabase/supabase-js';
 const AZURE_ENDPOINT = process.env.AZURE_IMAGE_ENDPOINT || 'https://unosend.services.ai.azure.com/openai/deployments/FLUX.1-Kontext-pro/images/generations?api-version=2025-04-01-preview';
 const AZURE_API_KEY = process.env.AZURE_IMAGE_API_KEY;
 
-// Supabase client for storage
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy-load Supabase client for storage
+function getSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,6 +73,8 @@ export async function POST(request: NextRequest) {
         // Convert base64 to buffer
         const buffer = Buffer.from(imageBase64, 'base64');
         const fileName = `ai-generated-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+        
+        const supabase = getSupabaseClient();
         
         // Upload to Supabase storage
         const { error: uploadError } = await supabase.storage

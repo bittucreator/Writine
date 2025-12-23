@@ -1188,7 +1188,7 @@ ${textContent.slice(0, 2000)}`,
                 value={aiImagePrompt}
                 onChange={(e) => setAIImagePrompt(e.target.value)}
                 placeholder="A serene mountain landscape at sunset with snow-capped peaks..."
-                className="w-full min-h-[100px] p-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8345dd] focus:border-transparent resize-none"
+                className="w-full min-h-25 p-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8345dd] focus:border-transparent resize-none"
                 disabled={generatingAIImage || suggestingImagePrompt}
               />
               <p className="text-xs text-slate-400">

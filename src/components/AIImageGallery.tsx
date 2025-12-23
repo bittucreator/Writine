@@ -159,7 +159,7 @@ export default function AIImageGallery({
                 value={newPrompt}
                 onChange={(e) => setNewPrompt(e.target.value)}
                 placeholder="Describe the image you want to generate..."
-                className="w-full min-h-[100px] p-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8345dd] focus:border-transparent resize-none"
+                className="w-full min-h-25 p-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8345dd] focus:border-transparent resize-none"
                 disabled={generating}
               />
               <div className="flex justify-end gap-2">
@@ -292,7 +292,7 @@ export default function AIImageGallery({
               value={editPrompt}
               onChange={(e) => setEditPrompt(e.target.value)}
               placeholder="Edit the image prompt..."
-              className="w-full min-h-[100px] p-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8345dd] focus:border-transparent resize-none"
+              className="w-full min-h-25 p-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8345dd] focus:border-transparent resize-none"
               disabled={regeneratingId !== null}
             />
             <div className="flex justify-end gap-2">
@@ -338,7 +338,7 @@ export default function AIImageGallery({
               value={newPrompt}
               onChange={(e) => setNewPrompt(e.target.value)}
               placeholder="Describe the image you want to generate..."
-              className="w-full min-h-[100px] p-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8345dd] focus:border-transparent resize-none"
+              className="w-full min-h-25 p-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8345dd] focus:border-transparent resize-none"
               disabled={generating}
             />
             <div className="flex justify-end gap-2">

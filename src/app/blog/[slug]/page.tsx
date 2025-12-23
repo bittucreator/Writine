@@ -152,7 +152,7 @@ export default async function PublicBlogPage({ params }: Props) {
               className="w-10 h-10 rounded-full object-cover"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-[#918df6] flex items-center justify-center text-white font-medium">
+            <div className="w-10 h-10 rounded-full bg-[#8345dd] flex items-center justify-center text-white font-medium">
               {(author?.full_name || 'A').charAt(0).toUpperCase()}
             </div>
           )}
@@ -174,7 +174,7 @@ export default async function PublicBlogPage({ params }: Props) {
 
         {/* Content */}
         <div
-          className="prose prose-lg max-w-none prose-headings:font-semibold prose-a:text-[#918df6] prose-img:rounded-xl"
+          className="prose prose-lg max-w-none prose-headings:font-semibold prose-a:text-[#8345dd] prose-img:rounded-xl"
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
       </article>
@@ -186,7 +186,7 @@ export default async function PublicBlogPage({ params }: Props) {
             href="https://writine.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
+            className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#8345dd] transition-colors"
           >
             <Image
               src="/writine-dark.svg"

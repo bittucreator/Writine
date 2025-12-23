@@ -117,7 +117,7 @@ const ToolbarButton = ({ onClick, active, disabled, children, title }: ToolbarBu
       disabled
         ? 'opacity-30 cursor-not-allowed'
         : active
-        ? 'bg-[#918df6] text-white shadow-sm'
+        ? 'bg-[#8345dd] text-white shadow-sm'
         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
     }`}
   >
@@ -176,7 +176,7 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-[#918df6] underline decoration-[#918df6]/30 hover:decoration-[#918df6] transition-colors',
+          class: 'text-[#8345dd] underline decoration-[#8345dd]/30 hover:decoration-[#8345dd] transition-colors',
         },
       }),
       Youtube.configure({
@@ -501,12 +501,12 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
               onClick={() => executeSlashCommand(cmd.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
                 index === selectedSlashIndex 
-                  ? 'bg-[#918df6]/10 text-[#918df6]' 
+                  ? 'bg-[#8345dd]/10 text-[#8345dd]' 
                   : 'hover:bg-slate-50 text-slate-700'
               }`}
             >
               <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                index === selectedSlashIndex ? 'bg-[#918df6] text-white' : 'bg-slate-50 text-slate-600'
+                index === selectedSlashIndex ? 'bg-[#8345dd] text-white' : 'bg-slate-50 text-slate-600'
               }`} style={{ border: '0.5px solid rgba(0, 0, 0, 0.06)' }}>
                 <cmd.Icon className="w-4 h-4" />
               </div>
@@ -760,7 +760,7 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
                     className="flex-1 h-8 text-sm"
                     onKeyDown={(e) => e.key === 'Enter' && addLink()}
                   />
-                  <Button size="sm" onClick={addLink} className="h-8 w-8 p-0 bg-[#918df6] hover:bg-[#7b77e0]">
+                  <Button size="sm" onClick={addLink} className="h-8 w-8 p-0 bg-[#8345dd] hover:bg-[#7b77e0]">
                     <Check className="w-4 h-4" />
                   </Button>
                   <Button
@@ -796,7 +796,7 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
                     className="flex-1 h-8 text-sm"
                     onKeyDown={(e) => e.key === 'Enter' && addImage()}
                   />
-                  <Button size="sm" onClick={addImage} className="h-8 w-8 p-0 bg-[#918df6] hover:bg-[#7b77e0]">
+                  <Button size="sm" onClick={addImage} className="h-8 w-8 p-0 bg-[#8345dd] hover:bg-[#7b77e0]">
                     <Check className="w-4 h-4" />
                   </Button>
                   <Button
@@ -858,7 +858,7 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
                     className="flex-1 h-8 text-sm"
                     onKeyDown={(e) => e.key === 'Enter' && addVideo()}
                   />
-                  <Button size="sm" onClick={addVideo} className="h-8 w-8 p-0 bg-[#918df6] hover:bg-[#7b77e0]">
+                  <Button size="sm" onClick={addVideo} className="h-8 w-8 p-0 bg-[#8345dd] hover:bg-[#7b77e0]">
                     <Check className="w-4 h-4" />
                   </Button>
                   <Button
@@ -942,7 +942,7 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#918df6]" />
+              <Sparkles className="w-5 h-5 text-[#8345dd]" />
               AI Improve
             </DialogTitle>
           </DialogHeader>
@@ -985,7 +985,7 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
                   }
                 }}
                 disabled={!aiPrompt.trim() || aiProcessing}
-                className="bg-[#918df6] hover:bg-[#7b77e0]"
+                className="bg-[#8345dd] hover:bg-[#7b77e0]"
               >
                 {aiProcessing ? (
                   <>
@@ -1010,7 +1010,7 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
           {/* Header */}
           <div className="sticky top-0 bg-white/95 backdrop-blur-sm px-4 py-3 border-b" style={{ borderColor: 'rgba(0, 0, 0, 0.08)' }}>
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#918df6] animate-pulse" />
+              <Sparkles className="w-5 h-5 text-[#8345dd] animate-pulse" />
               <span className="font-medium text-slate-900">AI is writing...</span>
             </div>
           </div>
@@ -1020,7 +1020,7 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
             {streamingContent ? (
               <div className="prose prose-slate max-w-none">
                 <div dangerouslySetInnerHTML={{ __html: streamingContent }} />
-                <span className="inline-block w-0.5 h-5 bg-[#918df6] animate-pulse ml-0.5 align-middle"></span>
+                <span className="inline-block w-0.5 h-5 bg-[#8345dd] animate-pulse ml-0.5 align-middle"></span>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-slate-500">

@@ -245,7 +245,7 @@ export default function TemplatesPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#918df6]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#8345dd]" />
       </div>
     );
   }
@@ -287,7 +287,7 @@ export default function TemplatesPage() {
                 onClick={() => setSelectedCategory(category.id)}
                 className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                   selectedCategory === category.id 
-                    ? 'bg-[#918df6] text-white' 
+                    ? 'bg-[#8345dd] text-white' 
                     : 'bg-white text-slate-700 hover:bg-slate-50'
                 }`}
                 style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
@@ -310,11 +310,11 @@ export default function TemplatesPage() {
                   onClick={() => handleUseTemplate(template)}
                 >
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-[#918df6]/10 flex items-center justify-center shrink-0">
-                      <template.icon className="w-5 h-5 text-[#918df6]" />
+                    <div className="w-10 h-10 rounded-lg bg-[#8345dd]/10 flex items-center justify-center shrink-0">
+                      <template.icon className="w-5 h-5 text-[#8345dd]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm mb-1 text-slate-900 group-hover:text-[#918df6] transition-colors">
+                      <h3 className="font-semibold text-sm mb-1 text-slate-900 group-hover:text-[#8345dd] transition-colors">
                         {template.title}
                       </h3>
                       <Badge variant="outline" className="text-xs capitalize">
@@ -331,7 +331,7 @@ export default function TemplatesPage() {
                     <span className="text-xs text-slate-400">
                       ~{template.wordCount} words
                     </span>
-                    <div className="flex items-center gap-1 text-xs text-[#918df6] opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 text-xs text-[#8345dd] opacity-0 group-hover:opacity-100 transition-opacity">
                       Use template
                       <ArrowRight className="w-3 h-3" />
                     </div>
@@ -346,7 +346,7 @@ export default function TemplatesPage() {
               <Button 
                 variant="link" 
                 onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
-                className="text-[#918df6]"
+                className="text-[#8345dd]"
               >
                 Clear filters
               </Button>

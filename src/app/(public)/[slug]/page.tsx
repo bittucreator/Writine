@@ -95,7 +95,7 @@ export default async function PublicBlogPage({ params }: Props) {
               className="w-10 h-10 rounded-full object-cover"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-[#918df6] flex items-center justify-center text-white font-medium">
+            <div className="w-10 h-10 rounded-full bg-[#8345dd] flex items-center justify-center text-white font-medium">
               {(author?.full_name || 'A').charAt(0).toUpperCase()}
             </div>
           )}
@@ -121,7 +121,7 @@ export default async function PublicBlogPage({ params }: Props) {
 
         {/* Content */}
         <div
-          className="prose prose-lg max-w-none prose-headings:font-semibold prose-a:text-[#918df6] prose-img:rounded-xl"
+          className="prose prose-lg max-w-none prose-headings:font-semibold prose-a:text-[#8345dd] prose-img:rounded-xl"
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
       </article>
@@ -130,7 +130,7 @@ export default async function PublicBlogPage({ params }: Props) {
       <footer className="border-t py-8 text-center">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#8345dd] transition-colors"
         >
           <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor">
             <path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2zm0 25.5C9.649 27.5 4.5 22.351 4.5 16S9.649 4.5 16 4.5 27.5 9.649 27.5 16 22.351 27.5 16 27.5z"/>

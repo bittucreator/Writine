@@ -203,7 +203,7 @@ export function ProfileModal({ open, onOpenChange, onProfileUpdate }: ProfileMod
                   {avatarUrl ? (
                     <AvatarImage src={avatarUrl} alt={userName} />
                   ) : null}
-                  <AvatarFallback className="text-2xl bg-[#918df6] text-white">
+                  <AvatarFallback className="text-2xl bg-[#8345dd] text-white">
                     {userName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>

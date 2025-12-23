@@ -94,7 +94,7 @@ export function FloatingNav() {
                   className={`
                     flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl transition-all
                     ${isActive(item.path) 
-                      ? 'text-[#918df6] bg-[#918df6]/10 sm:bg-transparent' 
+                      ? 'text-[#8345dd] bg-[#8345dd]/10 sm:bg-transparent' 
                       : 'hover:bg-slate-100 text-slate-500 hover:text-slate-700'
                     }
                   `}
@@ -119,7 +119,7 @@ export function FloatingNav() {
               >
                 <Avatar className="w-6 h-6 sm:w-7 sm:h-7 border-2 border-white shadow-sm">
                   <AvatarImage src={avatarUrl || undefined} alt={userName} />
-                  <AvatarFallback className="text-[10px] sm:text-xs bg-[#918df6] text-white">
+                  <AvatarFallback className="text-[10px] sm:text-xs bg-[#8345dd] text-white">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>

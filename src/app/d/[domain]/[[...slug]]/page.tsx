@@ -174,7 +174,7 @@ export default async function CustomDomainBlogPage({ params }: Props) {
               href="https://writine.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
+              className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#8345dd] transition-colors"
             >
               <Image
                 src="/writine-dark.svg"
@@ -230,7 +230,7 @@ export default async function CustomDomainBlogPage({ params }: Props) {
                     </div>
                   )}
                   <div>
-                    <h2 className="text-xl font-semibold mb-2 group-hover:text-[#918df6] transition-colors">
+                    <h2 className="text-xl font-semibold mb-2 group-hover:text-[#8345dd] transition-colors">
                       {blog.title}
                     </h2>
                     {blog.excerpt && (
@@ -260,7 +260,7 @@ export default async function CustomDomainBlogPage({ params }: Props) {
             href="https://writine.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
+            className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#8345dd] transition-colors"
           >
             <Image
               src="/writine-dark.svg"

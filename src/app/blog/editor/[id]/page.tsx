@@ -310,7 +310,7 @@ Instructions:
               variant={isPreview ? 'default' : 'outline'}
               size="sm"
               onClick={() => setIsPreview(!isPreview)}
-              className={isPreview ? 'bg-[#918df6] hover:bg-[#7b77e0] px-2 sm:px-3' : 'border-0 shadow-none px-2 sm:px-3'}
+              className={isPreview ? 'bg-[#8345dd] hover:bg-[#7b77e0] px-2 sm:px-3' : 'border-0 shadow-none px-2 sm:px-3'}
               style={!isPreview ? { border: '0.5px solid rgba(0, 0, 0, 0.08)' } : undefined}
             >
               {isPreview ? (
@@ -338,7 +338,7 @@ Instructions:
               size="sm"
               onClick={() => setShowPublishDialog(true)}
               disabled={saving || publishing}
-              className="bg-[#918df6] hover:bg-[#7b77e0] px-2 sm:px-3"
+              className="bg-[#8345dd] hover:bg-[#7b77e0] px-2 sm:px-3"
             >
               {publishing ? (
                 <><Loader2 className="w-4 h-4 animate-spin sm:mr-1.5" /><span className="hidden sm:inline">Publishing...</span></>
@@ -377,7 +377,7 @@ Instructions:
                       {title || 'Untitled Blog Post'}
                     </h1>
                     {excerpt && (
-                      <p className="text-lg text-slate-600 italic border-l-4 border-[#918df6] pl-4">
+                      <p className="text-lg text-slate-600 italic border-l-4 border-[#8345dd] pl-4">
                         {excerpt}
                       </p>
                     )}
@@ -400,7 +400,7 @@ Instructions:
                       prose-ul:my-4 prose-ul:pl-6
                       prose-li:text-slate-700 prose-li:mb-2
                       prose-strong:text-slate-900
-                      prose-blockquote:border-l-4 prose-blockquote:border-[#918df6] prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-slate-600
+                      prose-blockquote:border-l-4 prose-blockquote:border-[#8345dd] prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-slate-600
                       prose-img:rounded-xl prose-img:shadow-sm"
                     dangerouslySetInnerHTML={{ __html: content || '<p class="text-slate-400">No content yet...</p>' }} 
                   />

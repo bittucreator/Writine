@@ -147,7 +147,7 @@ function BillingContent() {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#918df6]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#8345dd]" />
       </div>
     );
   }
@@ -182,13 +182,13 @@ function BillingContent() {
               <ExternalLink className="w-3 h-3 mr-1" />
               Manage on Polar
             </Button>
-            <Badge className="bg-[#918df6]">Pro</Badge>
+            <Badge className="bg-[#8345dd]">Pro</Badge>
           </div>
         </div>
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
-              <Flame className="w-6 h-6 text-[#918df6]" />
+            <div className="w-12 h-12 rounded-lg bg-[#8345dd]/10 flex items-center justify-center">
+              <Flame className="w-6 h-6 text-[#8345dd]" />
             </div>
             <div>
               <p className="font-semibold text-lg text-slate-900">Pro Plan</p>
@@ -259,7 +259,7 @@ function BillingContent() {
           </div>
           
           <Button
-            className="w-full bg-[#918df6] hover:bg-[#7b77e0]"
+            className="w-full bg-[#8345dd] hover:bg-[#7b77e0]"
             onClick={handleManageSubscription}
           >
             <ExternalLink className="w-4 h-4 mr-2" />
@@ -311,13 +311,13 @@ function BillingContent() {
             className="relative bg-white rounded-xl p-6 transition-all"
             style={{ border: '1px solid rgba(145, 141, 246, 0.5)' }}
           >
-            <Badge className="absolute -top-2 right-4 bg-[#918df6]">
+            <Badge className="absolute -top-2 right-4 bg-[#8345dd]">
               7-Day Free Trial
             </Badge>
             
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
-                <plan.icon className="w-5 h-5 text-[#918df6]" />
+              <div className="w-10 h-10 rounded-lg bg-[#8345dd]/10 flex items-center justify-center">
+                <plan.icon className="w-5 h-5 text-[#8345dd]" />
               </div>
               <div>
                 <h4 className="font-semibold text-slate-900">{plan.name}</h4>
@@ -343,7 +343,7 @@ function BillingContent() {
             </ul>
 
             <Button
-              className="w-full bg-[#918df6] hover:bg-[#7b77e0]"
+              className="w-full bg-[#8345dd] hover:bg-[#7b77e0]"
               onClick={() => handleUpgrade(plan)}
               disabled={upgrading}
             >
@@ -411,7 +411,7 @@ export default function BillingPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#918df6]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#8345dd]" />
       </div>
     }>
       <BillingContent />

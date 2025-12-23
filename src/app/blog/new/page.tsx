@@ -130,7 +130,7 @@ function SortableOutlineItem({
       style={style}
       className={`
         flex items-center gap-2 p-3 border rounded-lg bg-white transition-all group
-        ${isDragging ? 'shadow-lg border-[#918df6] scale-[1.02]' : 'hover:border-[#918df6]/50'}
+        ${isDragging ? 'shadow-lg border-[#8345dd] scale-[1.02]' : 'hover:border-[#8345dd]/50'}
       `}
     >
       {/* Drag Handle */}
@@ -143,7 +143,7 @@ function SortableOutlineItem({
       </button>
       
       {/* Section Number */}
-      <Badge variant="secondary" className="shrink-0 bg-[#918df6]/10 text-[#918df6]">
+      <Badge variant="secondary" className="shrink-0 bg-[#8345dd]/10 text-[#8345dd]">
         {index + 1}
       </Badge>
       
@@ -410,7 +410,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
           <Button
             onClick={handleGenerateOutline}
             disabled={!topic.trim() || generatingOutline}
-            className="w-full bg-[#918df6] hover:bg-[#7b77e0]"
+            className="w-full bg-[#8345dd] hover:bg-[#7b77e0]"
           >
             {generatingOutline ? (
               <>
@@ -510,7 +510,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
             </Button>
             <Button
               onClick={() => setWizardStep('customize')}
-              className="flex-1 bg-[#918df6] hover:bg-[#7b77e0]"
+              className="flex-1 bg-[#8345dd] hover:bg-[#7b77e0]"
             >
               Continue
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -544,7 +544,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
                   key={tone.id}
                   variant={selectedTone === tone.id ? 'default' : 'outline'}
                   onClick={() => setSelectedTone(tone.id)}
-                  className={selectedTone === tone.id ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}
+                  className={selectedTone === tone.id ? 'bg-[#8345dd] hover:bg-[#7b77e0]' : ''}
                 >
                   <tone.Icon className="w-4 h-4 mr-2" />
                   {tone.label}
@@ -562,7 +562,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
                   key={wc.id}
                   variant={wordCount === wc.id ? 'default' : 'outline'}
                   onClick={() => setWordCount(wc.id)}
-                  className={`h-auto py-3 ${wordCount === wc.id ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}`}
+                  className={`h-auto py-3 ${wordCount === wc.id ? 'bg-[#8345dd] hover:bg-[#7b77e0]' : ''}`}
                 >
                   {wc.label}
                 </Button>
@@ -600,7 +600,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
             <Button
               onClick={handleGenerateContent}
               disabled={generating}
-              className="flex-1 bg-[#918df6] hover:bg-[#7b77e0]"
+              className="flex-1 bg-[#8345dd] hover:bg-[#7b77e0]"
             >
               {generating ? (
                 <>
@@ -643,11 +643,11 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
         <div className="flex items-center justify-center gap-2 mb-8">
           {[1, 2, 3].map((stepNum, index) => (
             <div key={stepNum} className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-[#918df6] text-white">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-[#8345dd] text-white">
                 <CheckCircle className="w-4 h-4" />
               </div>
               {index < 2 && (
-                <div className="w-12 h-0.5 rounded bg-[#918df6]" />
+                <div className="w-12 h-0.5 rounded bg-[#8345dd]" />
               )}
             </div>
           ))}
@@ -665,7 +665,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
         <div className="mb-8 px-4">
           <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-linear-to-r from-[#918df6] to-[#7b77e0] rounded-full transition-all duration-500 ease-out"
+              className="h-full bg-linear-to-r from-[#8345dd] to-[#7b77e0] rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -681,8 +681,8 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
                 key={step.id}
                 className={`
                   flex items-center gap-4 p-4 rounded-xl border transition-all duration-300
-                  ${status === 'complete' ? 'bg-[#918df6]/5 border-[#918df6]/20' : ''}
-                  ${status === 'active' ? 'bg-white border-[#918df6] shadow-md shadow-[#918df6]/10' : ''}
+                  ${status === 'complete' ? 'bg-[#8345dd]/5 border-[#8345dd]/20' : ''}
+                  ${status === 'active' ? 'bg-white border-[#8345dd] shadow-md shadow-[#8345dd]/10' : ''}
                   ${status === 'pending' ? 'bg-slate-50/50 border-slate-100 opacity-50' : ''}
                 `}
                 style={{ 
@@ -693,8 +693,8 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
                 {/* Step Icon */}
                 <div className={`
                   w-8 h-8 rounded-full flex items-center justify-center shrink-0
-                  ${status === 'complete' ? 'bg-[#918df6] text-white' : ''}
-                  ${status === 'active' ? 'bg-[#918df6] text-white' : ''}
+                  ${status === 'complete' ? 'bg-[#8345dd] text-white' : ''}
+                  ${status === 'active' ? 'bg-[#8345dd] text-white' : ''}
                   ${status === 'pending' ? 'bg-slate-200 text-slate-400' : ''}
                 `}>
                   {status === 'complete' && <CheckCircle className="w-4 h-4" />}
@@ -721,10 +721,10 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
 
                 {/* Status Badge */}
                 {status === 'complete' && (
-                  <Badge className="bg-[#918df6]/10 text-[#918df6] border-0 text-xs">Done</Badge>
+                  <Badge className="bg-[#8345dd]/10 text-[#8345dd] border-0 text-xs">Done</Badge>
                 )}
                 {status === 'active' && (
-                  <Badge className="bg-[#918df6] text-white border-0 text-xs animate-pulse">In Progress</Badge>
+                  <Badge className="bg-[#8345dd] text-white border-0 text-xs animate-pulse">In Progress</Badge>
                 )}
               </div>
             );
@@ -815,10 +815,10 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
       {showPreview && (
         <div className="w-1/2 space-y-4 sticky top-20 h-fit">
           <Card className="overflow-hidden">
-            <CardHeader className="pb-4 bg-linear-to-r from-[#918df6]/10 to-transparent">
+            <CardHeader className="pb-4 bg-linear-to-r from-[#8345dd]/10 to-transparent">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-[#918df6]" />
+                  <Eye className="w-5 h-5 text-[#8345dd]" />
                   <CardTitle className="text-base">Live Preview</CardTitle>
                 </div>
                 <Button
@@ -840,7 +840,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
                       {title || 'Your Blog Title'}
                     </h1>
                     {excerpt && (
-                      <p className="text-lg text-slate-600 italic border-l-4 border-[#918df6] pl-4">
+                      <p className="text-lg text-slate-600 italic border-l-4 border-[#8345dd] pl-4">
                         {excerpt}
                       </p>
                     )}
@@ -861,7 +861,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
                       prose-ul:my-4 prose-ul:pl-6
                       prose-li:text-slate-700 prose-li:mb-2
                       prose-strong:text-slate-900
-                      prose-blockquote:border-l-4 prose-blockquote:border-[#918df6] prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-slate-600"
+                      prose-blockquote:border-l-4 prose-blockquote:border-[#8345dd] prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-slate-600"
                     dangerouslySetInnerHTML={{ __html: content || '<p class="text-slate-400">Start writing to see the preview...</p>' }} 
                   />
                 </article>
@@ -1029,9 +1029,9 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
               <div key={step} className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                   wizardStep === step
-                    ? 'bg-[#918df6] text-white'
+                    ? 'bg-[#8345dd] text-white'
                     : ['topic', 'outline', 'customize'].indexOf(wizardStep) > index
-                    ? 'bg-[#918df6] text-white'
+                    ? 'bg-[#8345dd] text-white'
                     : 'bg-muted text-muted-foreground'
                 }`}>
                   {['topic', 'outline', 'customize'].indexOf(wizardStep) > index ? (
@@ -1043,7 +1043,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
                 {index < 2 && (
                   <div className={`w-12 h-0.5 rounded ${
                     ['topic', 'outline', 'customize'].indexOf(wizardStep) > index
-                      ? 'bg-[#918df6]'
+                      ? 'bg-[#8345dd]'
                       : 'bg-muted'
                   }`} />
                 )}

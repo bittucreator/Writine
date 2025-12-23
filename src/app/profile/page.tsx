@@ -190,7 +190,7 @@ export default function ProfilePage() {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#918df6]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#8345dd]" />
       </div>
     );
   }
@@ -235,7 +235,7 @@ export default function ProfilePage() {
                         {avatarUrl ? (
                           <AvatarImage src={avatarUrl} alt={userName} />
                         ) : null}
-                        <AvatarFallback className="text-2xl bg-[#918df6] text-white">
+                        <AvatarFallback className="text-2xl bg-[#8345dd] text-white">
                           {userName.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -299,7 +299,7 @@ export default function ProfilePage() {
                               setCopied(true);
                               setTimeout(() => setCopied(false), 2000);
                             }}
-                            className="hover:text-[#918df6]"
+                            className="hover:text-[#8345dd]"
                           >
                             <Copy className={`w-3 h-3 ${copied ? 'text-green-600' : ''}`} />
                           </button>
@@ -369,7 +369,7 @@ export default function ProfilePage() {
                   <Button 
                     onClick={handleSave} 
                     disabled={saving}
-                    className="w-full bg-[#918df6] hover:bg-[#7b77e0]"
+                    className="w-full bg-[#8345dd] hover:bg-[#7b77e0]"
                   >
                     {saving ? (
                       <>

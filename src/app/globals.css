@@ -49,7 +49,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: #f8f7f3;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -125,6 +125,14 @@
   }
 }
 
+/* Grid background pattern */
+.bg-grid {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
 /* TipTap Editor Styles */
 .ProseMirror {
   outline: none;
@@ -159,7 +167,7 @@
 .ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
   width: 1rem;
   height: 1rem;
-  accent-color: #918df6;
+  accent-color: #8345dd;
   cursor: pointer;
 }
 
@@ -196,7 +204,7 @@
 
 .ProseMirror table td.selectedCell,
 .ProseMirror table th.selectedCell {
-  background-color: #918df6/10;
+  background-color: #8345dd/10;
 }
 
 /* Code Block Styles */
@@ -217,7 +225,7 @@
 
 /* Blockquote Styles */
 .ProseMirror blockquote {
-  border-left: 4px solid #918df6;
+  border-left: 4px solid #8345dd;
   padding-left: 1rem;
   color: #64748b;
   font-style: italic;
@@ -226,7 +234,7 @@
 
 /* Focus State for Selection */
 .ProseMirror ::selection {
-  background: #918df6/30;
+  background: #8345dd/30;
 }
 
 /* Horizontal Rule */
@@ -245,7 +253,7 @@
 }
 
 .ProseMirror img.ProseMirror-selectednode {
-  outline: 3px solid #918df6;
+  outline: 3px solid #8345dd;
 }
 
 /* YouTube Embeds */

@@ -161,7 +161,7 @@ export function PublishDialog({
       <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Globe className="w-5 h-5 text-[#918df6]" />
+            <Globe className="w-5 h-5 text-[#8345dd]" />
             Publish Blog
           </DialogTitle>
           <DialogDescription>
@@ -211,7 +211,7 @@ export function PublishDialog({
                     <RadioGroupItem value={domain.id} id={`domain-${domain.id}`} />
                     <Label htmlFor={`domain-${domain.id}`} className="flex-1 cursor-pointer">
                       <div className="flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-[#918df6]" />
+                        <Globe className="w-4 h-4 text-[#8345dd]" />
                         <span className="font-medium">{domain.domain}</span>
                         <Badge className="text-[10px] bg-green-100 text-green-700">
                           <CheckCircle className="w-3 h-3 mr-1" />
@@ -306,7 +306,7 @@ export function PublishDialog({
           <Button
             onClick={handlePublish}
             disabled={publishing || !!slugError}
-            className="bg-[#918df6] hover:bg-[#7b77e0]"
+            className="bg-[#8345dd] hover:bg-[#7b77e0]"
           >
             {publishing ? (
               <>

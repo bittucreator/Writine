@@ -116,19 +116,19 @@ export function BillingModal({ open, onOpenChange }: BillingModalProps) {
               {PLANS.map((plan) => (
                 <div
                   key={plan.id}
-                  className={`relative bg-white border rounded-2xl p-5 transition-all hover:border-[#918df6] ${
-                    plan.popular ? 'border-[#918df6] ring-1 ring-[#918df6]' : ''
+                  className={`relative bg-white border rounded-2xl p-5 transition-all hover:border-[#8345dd] ${
+                    plan.popular ? 'border-[#8345dd] ring-1 ring-[#8345dd]' : ''
                   }`}
                 >
                   {plan.popular && (
-                    <Badge className="absolute -top-2 right-4 bg-[#918df6]">
+                    <Badge className="absolute -top-2 right-4 bg-[#8345dd]">
                       Recommended
                     </Badge>
                   )}
                   
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#918df6]/10 flex items-center justify-center">
-                      <plan.icon className="w-4 h-4 text-[#918df6]" />
+                    <div className="w-9 h-9 rounded-xl bg-[#8345dd]/10 flex items-center justify-center">
+                      <plan.icon className="w-4 h-4 text-[#8345dd]" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-sm">{plan.name}</h4>

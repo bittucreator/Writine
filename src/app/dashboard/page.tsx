@@ -333,7 +333,7 @@ export default function DashboardPage() {
         <div className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-1">
             <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Dashboard</h1>
-            <Button onClick={() => router.push('/blog/new')} size="sm" className="bg-[#918df6] hover:bg-[#7b77e0]">
+            <Button onClick={() => router.push('/blog/new')} size="sm" className="bg-[#8345dd] hover:bg-[#7b77e0]">
               New Blog
             </Button>
           </div>
@@ -349,8 +349,8 @@ export default function DashboardPage() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
-                  <NotebookText className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#918df6]" />
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#8345dd]/10 flex items-center justify-center">
+                  <NotebookText className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#8345dd]" />
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-slate-600">All Blogs</span>
               </div>

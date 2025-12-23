@@ -123,7 +123,7 @@ export function AppSidebar() {
                 <div className="flex items-center gap-2">
                   <Avatar className="w-8 h-8">
                     {avatarUrl && <AvatarImage src={avatarUrl} alt={userName} />}
-                    <AvatarFallback className="text-xs bg-[#918df6] text-white">
+                    <AvatarFallback className="text-xs bg-[#8345dd] text-white">
                       {userName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>

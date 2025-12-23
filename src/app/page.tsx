@@ -82,12 +82,12 @@ export default function LandingPage() {
   }, [lastScrollY]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#f8f7f3] bg-grid">
       {/* Navigation */}
-      <nav className={`sticky top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl transition-transform duration-300 ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
+      <nav className={`sticky top-0 left-0 right-0 z-50 bg-[#f8f7f3]/80 backdrop-blur-xl transition-transform duration-300 ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#918df6] rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#8345dd] rounded-lg flex items-center justify-center">
               <Image src="/writine-light.svg" alt="Writine" width={20} height={20} />
             </div>
             <span className="font-semibold text-lg">Writine</span>
@@ -103,7 +103,7 @@ export default function LandingPage() {
               <Button variant="ghost" size="sm" className="rounded-full">Log in</Button>
             </Link>
             <Link href="/signup">
-              <Button size="sm" className="bg-[#918df6] hover:bg-[#7b77e0] rounded-full">
+              <Button size="sm" className="bg-[#8345dd] hover:bg-[#7b77e0] rounded-full">
                 Get Started
               </Button>
             </Link>
@@ -114,7 +114,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="pt-16 sm:pt-24 pb-12 sm:pb-20 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <Badge className="mb-4 sm:mb-6 bg-[#918df6]/10 text-[#918df6] hover:bg-[#918df6]/20 border-0">
+          <Badge className="mb-4 sm:mb-6 bg-[#8345dd]/10 text-[#8345dd] hover:bg-[#8345dd]/20 border-0">
             From idea to published in minutes
           </Badge>
 
@@ -132,7 +132,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4 sm:px-0">
             <Link href="/signup">
-              <Button size="lg" className="bg-[#918df6] hover:bg-[#7b77e0] h-12 px-8 text-base rounded-full w-full sm:w-auto">
+              <Button size="lg" className="bg-[#8345dd] hover:bg-[#7b77e0] h-12 px-8 text-base rounded-full w-full sm:w-auto">
                 Start Writing Free
               </Button>
             </Link>
@@ -169,7 +169,7 @@ export default function LandingPage() {
       <section id="features" className="py-16 sm:py-24 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
-            <Badge className="mb-4 bg-[#918df6]/10 text-[#918df6] border-0">Features</Badge>
+            <Badge className="mb-4 bg-[#8345dd]/10 text-[#8345dd] border-0">Features</Badge>
             <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-4">
               Everything you need to create amazing content
             </h2>
@@ -186,8 +186,8 @@ export default function LandingPage() {
                 className="bg-white rounded-xl p-6 transition-all hover:bg-slate-50/50 group"
                 style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}
               >
-                <div className="w-12 h-12 bg-[#918df6]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#918df6] transition-colors">
-                  <feature.icon className="w-6 h-6 text-[#918df6] group-hover:text-white transition-colors" />
+                <div className="w-12 h-12 bg-[#8345dd]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#8345dd] transition-colors">
+                  <feature.icon className="w-6 h-6 text-[#8345dd] group-hover:text-white transition-colors" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">{feature.title}</h3>
                 <p className="text-slate-600">{feature.description}</p>
@@ -198,10 +198,10 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-[#f8f7f3]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
-            <Badge className="mb-4 bg-[#918df6]/10 text-[#918df6] border-0">How It Works</Badge>
+            <Badge className="mb-4 bg-[#8345dd]/10 text-[#8345dd] border-0">How It Works</Badge>
             <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-4">
               From idea to published in 3 steps
             </h2>
@@ -215,11 +215,11 @@ export default function LandingPage() {
             ].map((item, index) => (
               <div key={item.step} className="relative text-center">
                 <div className="flex items-center justify-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-[#918df6] rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-12 h-12 bg-[#8345dd] rounded-full flex items-center justify-center text-white font-bold text-lg">
                     {item.step}
                   </div>
                   {index < 2 && (
-                    <div className="hidden md:block absolute left-1/2 top-6 w-full h-0.5 bg-linear-to-r from-[#918df6] to-[#918df6]/20 -z-10" />
+                    <div className="hidden md:block absolute left-1/2 top-6 w-full h-0.5 bg-linear-to-r from-[#8345dd] to-[#8345dd]/20 -z-10" />
                   )}
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2">{item.title}</h3>
@@ -231,10 +231,10 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
+      <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-[#f8f7f3]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
-            <Badge className="mb-4 bg-[#918df6]/10 text-[#918df6] border-0">Pricing</Badge>
+            <Badge className="mb-4 bg-[#8345dd]/10 text-[#8345dd] border-0">Pricing</Badge>
             <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-4">
               Simple, transparent pricing
             </h2>
@@ -248,11 +248,11 @@ export default function LandingPage() {
               <div 
                 key={plan.name} 
                 className={`relative bg-white rounded-xl p-6 max-w-sm w-full ${plan.highlighted ? 'scale-105' : ''}`}
-                style={{ border: plan.highlighted ? '2px solid #918df6' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
+                style={{ border: plan.highlighted ? '2px solid #8345dd' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
               >
                 {plan.highlighted && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-[#918df6] text-white">Most Popular</Badge>
+                    <Badge className="bg-[#8345dd] text-white">Most Popular</Badge>
                   </div>
                 )}
                 <h3 className="text-xl font-semibold text-slate-900 mb-2">{plan.name}</h3>
@@ -263,7 +263,7 @@ export default function LandingPage() {
                 <p className="text-slate-600 mb-6">{plan.description}</p>
                 
                 <Link href="/signup">
-                  <Button className={`w-full mb-6 rounded-full ${plan.highlighted ? 'bg-[#918df6] hover:bg-[#7b77e0]' : ''}`} variant={plan.highlighted ? 'default' : 'outline'}>
+                  <Button className={`w-full mb-6 rounded-full ${plan.highlighted ? 'bg-[#8345dd] hover:bg-[#7b77e0]' : ''}`} variant={plan.highlighted ? 'default' : 'outline'}>
                     {plan.cta}
                   </Button>
                 </Link>
@@ -283,10 +283,10 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-[#f8f7f3]">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
-            <Badge className="mb-4 bg-[#918df6]/10 text-[#918df6] border-0">FAQ</Badge>
+            <Badge className="mb-4 bg-[#8345dd]/10 text-[#8345dd] border-0">FAQ</Badge>
             <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-4">
               Frequently asked questions
             </h2>
@@ -352,7 +352,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link href="/signup">
-              <Button size="lg" className="bg-[#918df6] text-white hover:bg-[#7d79e0] h-12 px-8 rounded-full w-full sm:w-auto">
+              <Button size="lg" className="bg-[#8345dd] text-white hover:bg-[#7d79e0] h-12 px-8 rounded-full w-full sm:w-auto">
                 Get Started Free
               </Button>
             </Link>

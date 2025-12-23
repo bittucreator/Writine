@@ -45,7 +45,7 @@ const generateMonthlyData = () => {
   }));
 };
 
-const COLORS = ['#918df6', '#7b77e0', '#6560ca', '#4f4ab4'];
+const COLORS = ['#8345dd', '#7b77e0', '#6560ca', '#4f4ab4'];
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -124,8 +124,8 @@ export default function AnalyticsPage() {
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#918df6]/10 flex items-center justify-center">
-                    <Eye className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#918df6]" />
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#8345dd]/10 flex items-center justify-center">
+                    <Eye className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#8345dd]" />
                   </div>
                   <span className="text-xs sm:text-sm font-medium text-slate-600">Total Views</span>
                 </div>
@@ -197,8 +197,8 @@ export default function AnalyticsPage() {
                         <AreaChart data={weeklyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                           <defs>
                             <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#918df6" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#918df6" stopOpacity={0}/>
+                              <stop offset="5%" stopColor="#8345dd" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#8345dd" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -214,7 +214,7 @@ export default function AnalyticsPage() {
                           <Area 
                             type="monotone" 
                             dataKey="views" 
-                            stroke="#918df6" 
+                            stroke="#8345dd" 
                             strokeWidth={2}
                             fillOpacity={1} 
                             fill="url(#colorViews)" 
@@ -260,7 +260,7 @@ export default function AnalyticsPage() {
                     </div>
                     <div className="flex justify-center gap-4 mt-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-[#918df6]" />
+                        <div className="w-3 h-3 rounded-full bg-[#8345dd]" />
                         <span className="text-xs">Published ({blogCounts.published})</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -285,8 +285,8 @@ export default function AnalyticsPage() {
                       <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <defs>
                           <linearGradient id="colorMonthlyViews" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#918df6" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#918df6" stopOpacity={0}/>
+                            <stop offset="5%" stopColor="#8345dd" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#8345dd" stopOpacity={0}/>
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -302,7 +302,7 @@ export default function AnalyticsPage() {
                         <Area 
                           type="monotone" 
                           dataKey="views" 
-                          stroke="#918df6" 
+                          stroke="#8345dd" 
                           strokeWidth={2}
                           fillOpacity={1} 
                           fill="url(#colorMonthlyViews)" 

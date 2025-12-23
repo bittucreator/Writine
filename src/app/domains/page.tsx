@@ -276,7 +276,7 @@ export default function DomainsPage() {
               ) : (
                 <Button
                   size="sm"
-                  className="h-8 text-xs bg-[#918df6] hover:bg-[#7c78e3]"
+                  className="h-8 text-xs bg-[#8345dd] hover:bg-[#7c78e3]"
                   onClick={() => router.push('/profile')}
                 >
                   Set Username
@@ -296,7 +296,7 @@ export default function DomainsPage() {
               <p className="text-sm font-medium text-slate-900">Custom Domains</p>
               <p className="text-xs text-slate-500">Use your own domain</p>
             </div>
-            <Button size="sm" className="h-8 text-xs bg-[#918df6] hover:bg-[#7b77e0]" onClick={() => setShowAddModal(true)}>
+            <Button size="sm" className="h-8 text-xs bg-[#8345dd] hover:bg-[#7b77e0]" onClick={() => setShowAddModal(true)}>
               Add Domain
             </Button>
           </div>
@@ -546,7 +546,7 @@ export default function DomainsPage() {
               </Button>
               {selectedDomain && (
                 <Button 
-                  className="bg-[#918df6] hover:bg-[#7c78e3]"
+                  className="bg-[#8345dd] hover:bg-[#7c78e3]"
                   onClick={() => {
                     setShowDnsModal(false);
                     handleVerifyDomain(selectedDomain);

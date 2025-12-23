@@ -67,7 +67,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <div className="w-12 h-12 bg-[#918df6] rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-[#8345dd] rounded-xl flex items-center justify-center">
             <img src="/writine-light.svg" alt="Writine" className="w-6 h-6" />
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function LoginPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
-                    <button type="button" className="text-sm text-[#918df6] hover:underline">
+                    <button type="button" className="text-sm text-[#8345dd] hover:underline">
                       Forgot password?
                     </button>
                   </div>
@@ -120,7 +120,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#918df6] hover:bg-[#7b77e0]"
+                className="w-full bg-[#8345dd] hover:bg-[#7b77e0]"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -175,7 +175,7 @@ export default function LoginPage() {
 
             <div className="mt-4 text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-[#918df6] hover:underline font-medium">
+              <Link href="/signup" className="text-[#8345dd] hover:underline font-medium">
                 Sign up
               </Link>
             </div>

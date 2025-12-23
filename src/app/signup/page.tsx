@@ -73,7 +73,7 @@ export default function SignupPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <div className="w-12 h-12 bg-[#918df6] rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-[#8345dd] rounded-xl flex items-center justify-center">
             <img src="/writine-light.svg" alt="Writine" className="w-6 h-6" />
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function SignupPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#918df6] hover:bg-[#7b77e0]"
+                className="w-full bg-[#8345dd] hover:bg-[#7b77e0]"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -189,7 +189,7 @@ export default function SignupPage() {
 
             <div className="mt-4 text-center text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link href="/login" className="text-[#918df6] hover:underline font-medium">
+              <Link href="/login" className="text-[#8345dd] hover:underline font-medium">
                 Sign in
               </Link>
             </div>

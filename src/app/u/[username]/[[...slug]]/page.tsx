@@ -116,7 +116,7 @@ export default function SubdomainPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">404</h1>
           <p className="text-muted-foreground mb-4">{error}</p>
-          <Link href="https://writine.com" className="text-[#918df6] hover:underline">
+          <Link href="https://writine.com" className="text-[#8345dd] hover:underline">
             Go to Writine
           </Link>
         </div>
@@ -194,7 +194,7 @@ export default function SubdomainPage() {
                 href="https://writine.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
+                className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#8345dd] transition-colors"
               >
                 <Image
                   src="/writine-dark.svg"
@@ -248,7 +248,7 @@ export default function SubdomainPage() {
               <Link 
                 key={post.id} 
                 href={`/${post.slug}`}
-                className="bg-white rounded-2xl border p-6 hover:border-[#918df6] transition-colors group"
+                className="bg-white rounded-2xl border p-6 hover:border-[#8345dd] transition-colors group"
               >
                 <div className="flex gap-6">
                   {post.cover_image && (
@@ -259,7 +259,7 @@ export default function SubdomainPage() {
                     />
                   )}
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-semibold group-hover:text-[#918df6] transition-colors line-clamp-2">
+                    <h2 className="text-lg font-semibold group-hover:text-[#8345dd] transition-colors line-clamp-2">
                       {post.title}
                     </h2>
                     {post.excerpt && (
@@ -295,7 +295,7 @@ export default function SubdomainPage() {
               href="https://writine.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#918df6] transition-colors"
+              className="inline-flex items-center gap-2.5 text-sm text-gray-400 hover:text-[#8345dd] transition-colors"
             >
               <Image
                 src="/writine-dark.svg"

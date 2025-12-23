@@ -15,51 +15,50 @@ export async function POST(request: NextRequest) {
     }
 
     // Using Unosend API
-    if (process.env.UNOSEND_API_KEY) {
-      const response = await fetch('https://www.unosend.co/api/v1/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.UNOSEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: `${process.env.UNOSEND_FROM_NAME || 'Writine'} <${process.env.UNOSEND_FROM_EMAIL || 'contact@writine.com'}>`,
-          to: [CONTACT_EMAIL],
-          reply_to: email,
-          subject: subject || `Contact from ${name}`,
-          html: `
-            <h2>New Contact Form Submission</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Subject:</strong> ${subject || 'No subject'}</p>
-            <hr />
-            <p><strong>Message:</strong></p>
-            <p>${message.replace(/\n/g, '<br>')}</p>
-          `,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.text();
-        console.error('Unosend error:', error);
-        return NextResponse.json(
-          { success: false, error: 'Failed to send email' },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({ success: true });
+    const apiKey = process.env.UNOSEND_API_KEY;
+    
+    if (!apiKey) {
+      console.error('UNOSEND_API_KEY is not configured');
+      return NextResponse.json(
+        { success: false, error: 'Email service not configured' },
+        { status: 500 }
+      );
     }
 
-    // Fallback: Log the message when no email service is configured
-    console.log('=== New Contact Form Submission ===');
-    console.log('To:', CONTACT_EMAIL);
-    console.log('From:', name, `<${email}>`);
-    console.log('Subject:', subject || 'No subject');
-    console.log('Message:', message);
-    console.log('===================================');
+    const emailPayload = {
+      from: `${process.env.UNOSEND_FROM_NAME || 'Writine'} <${process.env.UNOSEND_FROM_EMAIL || 'contact@writine.com'}>`,
+      to: [CONTACT_EMAIL],
+      reply_to: email,
+      subject: subject || `Contact from ${name}`,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Subject:</strong> ${subject || 'No subject'}</p>
+        <hr />
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, '<br>')}</p>
+      `,
+    };
 
-    // For now, just return success (in production, configure Unosend)
+    const response = await fetch('https://www.unosend.co/api/v1/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(emailPayload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Unosend API error:', response.status, errorText);
+      return NextResponse.json(
+        { success: false, error: `Email failed: ${response.status}` },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ success: true });
 
   } catch (error) {

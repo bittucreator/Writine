@@ -41,6 +41,7 @@ import {
   Redo,
   Link as LinkIcon,
   Image as ImageIcon,
+  ImagePlus,
   Youtube as YoutubeIcon,
   AlignLeft,
   AlignCenter,
@@ -104,6 +105,7 @@ const SLASH_COMMANDS = [
   { id: 'horizontalRule', label: 'Divider', Icon: Minus, description: 'Visual divider line' },
   { id: 'table', label: 'Table', Icon: TableIcon, description: 'Insert a table' },
   { id: 'image', label: 'Image', Icon: ImageIcon, description: 'Insert an image' },
+  { id: 'aiImage', label: 'AI Image', Icon: Sparkles, description: 'Generate image with AI' },
   { id: 'youtube', label: 'YouTube Video', Icon: YoutubeIcon, description: 'Embed a YouTube video' },
 ];
 
@@ -145,6 +147,11 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
   const [selectedSlashIndex, setSelectedSlashIndex] = useState(0);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [showAIImageDialog, setShowAIImageDialog] = useState(false);
+  const [aiImagePrompt, setAIImagePrompt] = useState('');
+  const [aiImageSize, setAIImageSize] = useState<'1024x1024' | '1792x1024' | '1024x1792'>('1792x1024');
+  const [generatingAIImage, setGeneratingAIImage] = useState(false);
+  const [suggestingImagePrompt, setSuggestingImagePrompt] = useState(false);
   const slashMenuRef = useRef<HTMLDivElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -314,6 +321,9 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
       case 'image':
         setShowImageInput(true);
         break;
+      case 'aiImage':
+        setShowAIImageDialog(true);
+        break;
       case 'youtube':
         setShowVideoInput(true);
         break;
@@ -470,6 +480,88 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
       if (videoInputRef.current) {
         videoInputRef.current.value = '';
       }
+    }
+  }, [editor]);
+
+  const generateAIImage = useCallback(async () => {
+    if (!aiImagePrompt.trim() || !editor) return;
+
+    setGeneratingAIImage(true);
+    try {
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: aiImagePrompt, size: aiImageSize }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to generate image');
+      }
+
+      const data = await response.json();
+      
+      if (data.imageUrl) {
+        editor.chain().focus().setImage({ src: data.imageUrl }).run();
+        toast.success('AI image generated successfully!');
+      } else if (data.imageBase64) {
+        // Use the base64 data URL directly (Azure already formats it)
+        editor.chain().focus().setImage({ src: data.imageBase64 }).run();
+        toast.success('AI image generated successfully!');
+      }
+
+      setAIImagePrompt('');
+      setShowAIImageDialog(false);
+      setShowSlashMenu(false);
+    } catch (error) {
+      console.error('Error generating AI image:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to generate image');
+    } finally {
+      setGeneratingAIImage(false);
+    }
+  }, [editor, aiImagePrompt, aiImageSize]);
+
+  const suggestImagePrompt = useCallback(async () => {
+    if (!editor) return;
+    
+    // Get the current content text
+    const textContent = editor.getText();
+    if (!textContent.trim()) {
+      toast.error('Write some content first to get AI suggestions');
+      return;
+    }
+
+    setSuggestingImagePrompt(true);
+    try {
+      const response = await fetch('/api/generate-ai-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `Based on this blog content, suggest a single descriptive image prompt that would create a compelling, relevant illustration. The prompt should be detailed, include artistic style, mood, lighting, and composition. Return ONLY the image prompt, nothing else.
+
+Blog content:
+${textContent.slice(0, 2000)}`,
+          type: 'improve',
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to generate suggestion');
+      
+      const data = await response.json();
+      // API returns { success: true, data: { content: [{ text: "..." }] } }
+      const suggestion = data.data?.content?.[0]?.text || data.content || '';
+      
+      if (suggestion) {
+        setAIImagePrompt(suggestion.replace(/^["']|["']$/g, '').trim());
+        toast.success('Image prompt suggested based on your content!');
+      } else {
+        toast.error('Could not generate suggestion. Try again.');
+      }
+    } catch (error) {
+      console.error('Error suggesting image prompt:', error);
+      toast.error('Failed to suggest image prompt');
+    } finally {
+      setSuggestingImagePrompt(false);
     }
   }, [editor]);
 
@@ -838,6 +930,15 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
             )}
           </div>
 
+          {/* AI Image Generation */}
+          <ToolbarButton
+            onClick={() => setShowAIImageDialog(true)}
+            active={showAIImageDialog}
+            title="Generate AI Image"
+          >
+            <ImagePlus className="w-4 h-4" />
+          </ToolbarButton>
+
           {/* YouTube / Video */}
           <div className="relative">
             <ToolbarButton
@@ -1047,6 +1148,138 @@ export default function BlogEditorPro({ content, onChange, placeholder, onAIImpr
           {content.split(/\s+/).filter(Boolean).length} words
         </span>
       </div>
+
+      {/* AI Image Generation Dialog */}
+      <Dialog open={showAIImageDialog} onOpenChange={setShowAIImageDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-[#8345dd]" />
+              Generate AI Image
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-slate-700">
+                  Describe the image you want to generate
+                </label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={suggestImagePrompt}
+                  disabled={suggestingImagePrompt || generatingAIImage}
+                  className="text-xs text-[#8345dd] hover:text-[#7b77e0] hover:bg-[#8345dd]/10 h-7"
+                >
+                  {suggestingImagePrompt ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      Suggest from content
+                    </>
+                  )}
+                </Button>
+              </div>
+              <textarea
+                value={aiImagePrompt}
+                onChange={(e) => setAIImagePrompt(e.target.value)}
+                placeholder="A serene mountain landscape at sunset with snow-capped peaks..."
+                className="w-full min-h-[100px] p-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8345dd] focus:border-transparent resize-none"
+                disabled={generatingAIImage || suggestingImagePrompt}
+              />
+              <p className="text-xs text-slate-400">
+                Be descriptive for better results. Include style, mood, and details.
+              </p>
+            </div>
+            
+            {/* Image Size Selector */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Image Size</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAIImageSize('1792x1024')}
+                  disabled={generatingAIImage}
+                  className={`flex-1 px-3 py-2 text-xs rounded-lg border transition-all ${
+                    aiImageSize === '1792x1024'
+                      ? 'bg-[#8345dd] text-white border-[#8345dd]'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-[#8345dd]'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-8 h-5 border-2 border-current rounded-sm" />
+                    <span>Landscape</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAIImageSize('1024x1024')}
+                  disabled={generatingAIImage}
+                  className={`flex-1 px-3 py-2 text-xs rounded-lg border transition-all ${
+                    aiImageSize === '1024x1024'
+                      ? 'bg-[#8345dd] text-white border-[#8345dd]'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-[#8345dd]'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-5 h-5 border-2 border-current rounded-sm" />
+                    <span>Square</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAIImageSize('1024x1792')}
+                  disabled={generatingAIImage}
+                  className={`flex-1 px-3 py-2 text-xs rounded-lg border transition-all ${
+                    aiImageSize === '1024x1792'
+                      ? 'bg-[#8345dd] text-white border-[#8345dd]'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-[#8345dd]'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-4 h-6 border-2 border-current rounded-sm" />
+                    <span>Portrait</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowAIImageDialog(false);
+                  setAIImagePrompt('');
+                }}
+                disabled={generatingAIImage || suggestingImagePrompt}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={generateAIImage}
+                disabled={!aiImagePrompt.trim() || generatingAIImage || suggestingImagePrompt}
+                className="bg-[#8345dd] hover:bg-[#7b77e0]"
+              >
+                {generatingAIImage ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Image
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import BlogEditorPro from '@/components/BlogEditorPro';
+import AIImageGallery, { AIImage } from '@/components/AIImageGallery';
 import { PublishDialog } from '@/components/PublishDialog';
 import { analyzeSEO, generateSlug } from '@/lib/seo';
-import { streamBlogContent } from '@/lib/ai';
+import { streamBlogContent, generateBlogContentWithImages } from '@/lib/ai';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,6 +27,7 @@ import {
   Settings,
   Copy,
   Globe,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -52,6 +54,7 @@ export default function NewBlogEditorPage() {
   const [publishing, setPublishing] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
+  const [aiImages, setAIImages] = useState<AIImage[]>([]);
 
   const seoAnalysis = analyzeSEO(title, content, seoTitle, seoDescription, seoKeywords);
 
@@ -188,7 +191,41 @@ Instructions:
       );
       
       setContent(finalContent);
-      toast.success('Content improved with AI!');
+
+      // After content is improved, generate relevant images
+      try {
+        const imageResponse = await fetch('/api/generate-ai-content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'blog',
+            prompt: finalContent.slice(0, 3000),
+            tone: 'professional',
+            generateImages: true,
+          }),
+        });
+
+        if (imageResponse.ok) {
+          const data = await imageResponse.json();
+          if (data.data?.images && data.data.images.length > 0) {
+            const newImages: AIImage[] = data.data.images.map((img: { section: string; prompt: string; url: string }, index: number) => ({
+              id: `ai-${Date.now()}-${index}`,
+              section: img.section,
+              prompt: img.prompt,
+              url: img.url,
+            }));
+            setAIImages(prev => [...prev, ...newImages]);
+            toast.success(`Content improved with ${newImages.length} AI images!`);
+          } else {
+            toast.success('Content improved with AI!');
+          }
+        } else {
+          toast.success('Content improved with AI!');
+        }
+      } catch {
+        // Image generation failed, but content was improved
+        toast.success('Content improved with AI!');
+      }
     } catch (error) {
       console.error('Error improving content:', error);
       toast.error('Failed to improve content. Please try again.');
@@ -196,6 +233,13 @@ Instructions:
       setRegenerating(false);
       setStreamingContent('');
     }
+  };
+
+  // Insert AI image into content
+  const handleInsertAIImage = (imageUrl: string) => {
+    const imageHtml = `<img src="${imageUrl}" alt="AI generated image" class="rounded-xl max-w-full h-auto my-6 shadow-sm border" />`;
+    setContent(prevContent => prevContent + imageHtml);
+    toast.success('Image inserted into content!');
   };
 
   const addKeyword = () => {
@@ -405,6 +449,16 @@ Instructions:
                   aiProcessing={regenerating}
                   streamingContent={streamingContent}
                 />
+
+                {/* AI Generated Images */}
+                <div className="bg-white rounded-xl p-4 sm:p-6" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
+                  <AIImageGallery
+                    images={aiImages}
+                    onImagesChange={setAIImages}
+                    onInsertImage={handleInsertAIImage}
+                    disabled={regenerating}
+                  />
+                </div>
               </>
             )}
           </div>

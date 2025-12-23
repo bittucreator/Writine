@@ -62,6 +62,7 @@ import {
   Trash2,
   GripVertical,
   Plus,
+  ImagePlus,
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -319,13 +320,93 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
       setGenerationStep(5);
       await new Promise(resolve => setTimeout(resolve, 500));
       
+      // Step 6: Generate AI Images
+      setGenerationStep(6);
+      let contentWithImages = generatedContent;
+      try {
+        // Generate image prompts based on content using Claude
+        console.log('Generating image prompts with Claude...');
+        const imagePromptsResponse = await fetch('/api/generate-ai-content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'image-prompts',
+            content: generatedContent,
+            count: 2,
+          }),
+        });
+        
+        if (imagePromptsResponse.ok) {
+          const imagePromptsData = await imagePromptsResponse.json();
+          console.log('Image prompts response:', imagePromptsData);
+          const prompts = imagePromptsData.prompts || [];
+          console.log('Prompts to generate:', prompts);
+          
+          // Generate images from prompts using FLUX.1-Kontext-pro
+          const generatedImages: { url: string; prompt: string }[] = [];
+          for (const prompt of prompts.slice(0, 2)) {
+            try {
+              console.log('Generating image with FLUX for prompt:', prompt.slice(0, 50) + '...');
+              const imageResponse = await fetch('/api/generate-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, size: '1792x1024' }),
+              });
+              
+              if (imageResponse.ok) {
+                const imageData = await imageResponse.json();
+                console.log('FLUX image response:', imageData);
+                if (imageData.imageUrl) {
+                  generatedImages.push({ url: imageData.imageUrl, prompt });
+                  console.log('Image generated successfully');
+                } else {
+                  console.log('No image URL in response');
+                }
+              } else {
+                console.error('Image generation failed with status:', imageResponse.status);
+              }
+            } catch (imgError) {
+              console.error('Image generation failed:', imgError);
+            }
+          }
+          
+          console.log('Total images generated:', generatedImages.length);
+          
+          // Insert images into content
+          if (generatedImages.length > 0) {
+            // Add first image after first paragraph
+            const firstParagraphEnd = contentWithImages.indexOf('</p>');
+            if (firstParagraphEnd !== -1) {
+              const imageHtml = `<img src="${generatedImages[0].url}" alt="AI generated illustration" class="ai-generated-image" />`;
+              contentWithImages = contentWithImages.slice(0, firstParagraphEnd + 4) + imageHtml + contentWithImages.slice(firstParagraphEnd + 4);
+            }
+            
+            // Add second image in the middle if available
+            if (generatedImages.length > 1) {
+              const paragraphs = contentWithImages.split('</p>');
+              if (paragraphs.length > 3) {
+                const middleIndex = Math.floor(paragraphs.length / 2);
+                const imageHtml = `<img src="${generatedImages[1].url}" alt="AI generated illustration" class="ai-generated-image" />`;
+                paragraphs.splice(middleIndex, 0, imageHtml);
+                contentWithImages = paragraphs.join('</p>');
+              }
+            }
+          }
+        }
+      } catch (imageError) {
+        console.error('Image generation failed:', imageError);
+        // Continue without images
+      }
+      
       // Save the blog and redirect to full editor
-      const slug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const baseSlug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      const slug = `${baseSlug}-${uniqueId}`;
       const blogData = {
         user_id: user?.id,
         title: topic,
         slug,
-        content: generatedContent,
+        content: contentWithImages,
         excerpt: topic.slice(0, 160),
         seo_title: seoTitle,
         seo_description: seoDescription,
@@ -627,6 +708,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
       { id: 3, label: 'Writing content sections' },
       { id: 4, label: 'Optimizing for SEO' },
       { id: 5, label: 'Polishing and formatting' },
+      { id: 6, label: 'Generating AI images' },
     ];
 
     const getStepStatus = (stepId: number) => {
@@ -635,7 +717,7 @@ Language: ${LANGUAGES.find(l => l.id === language)?.label || 'English'}`;
       return 'pending';
     };
 
-    const progressPercent = Math.min((generationStep / 5) * 100, 100);
+    const progressPercent = Math.min((generationStep / 6) * 100, 100);
 
     return (
       <div className="max-w-lg mx-auto text-center py-8">

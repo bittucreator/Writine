@@ -3,6 +3,41 @@ import { NextRequest, NextResponse } from 'next/server';
 const AZURE_ENDPOINT = process.env.AZURE_AI_ENDPOINT;
 const AZURE_API_KEY = process.env.AZURE_AI_API_KEY;
 const AZURE_DEPLOYMENT = process.env.AZURE_AI_DEPLOYMENT_NAME || 'claude-opus-4-5';
+const AZURE_IMAGE_ENDPOINT = process.env.AZURE_IMAGE_ENDPOINT;
+const AZURE_IMAGE_API_KEY = process.env.AZURE_IMAGE_API_KEY;
+
+// Helper function to generate image from prompt
+async function generateImage(prompt: string, size: string = '1792x1024'): Promise<string | null> {
+  if (!AZURE_IMAGE_ENDPOINT || !AZURE_IMAGE_API_KEY) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(AZURE_IMAGE_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': AZURE_IMAGE_API_KEY,
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        n: 1,
+        size: size,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Image generation failed:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.data?.[0]?.url || null;
+  } catch (error) {
+    console.error('Image generation error:', error);
+    return null;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,6 +103,27 @@ Make the content informative, well-structured, and easy to read. Do NOT include 
         userPrompt = `Title: ${title}\n\nContent: ${content?.slice(0, 2000)}`;
         break;
 
+      case 'improve':
+        systemPrompt = `You are a helpful AI assistant. Follow the user's instructions precisely and return only the requested output, no explanations.`;
+        userPrompt = prompt;
+        break;
+
+      case 'image-prompts':
+        systemPrompt = `You are an expert at creating image generation prompts. Based on the blog content, suggest 2-3 detailed image prompts that would enhance the article.
+        
+Return a JSON array of image prompts. Each prompt should be:
+- Detailed and descriptive (50-100 words)
+- Include artistic style, mood, lighting, composition
+- Relevant to the section of the blog
+
+Return ONLY a JSON array like this:
+[
+  {"section": "Introduction", "prompt": "A detailed image prompt here..."},
+  {"section": "Main Content", "prompt": "Another detailed image prompt..."}
+]`;
+        userPrompt = `Generate image prompts for this blog:\n\n${content?.slice(0, 3000)}`;
+        break;
+
       default:
         return NextResponse.json(
           { success: false, error: 'Invalid type' },
@@ -105,6 +161,90 @@ Make the content informative, well-structured, and easy to read. Do NOT include 
     const result = await response.json();
     // Anthropic API returns content as array of blocks
     const generatedText = result.content?.[0]?.text || '';
+
+    // For blog generation with images, generate AI images based on content
+    if (type === 'blog' && body.generateImages) {
+      try {
+        // First, get image prompts for the blog content
+        const imagePromptsResponse = await fetch(`${AZURE_ENDPOINT}/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': AZURE_API_KEY!,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: AZURE_DEPLOYMENT,
+            max_tokens: 1000,
+            system: `You are an expert at creating image generation prompts. Based on the blog content, suggest 2-3 detailed image prompts that would enhance the article.
+            
+Return ONLY a JSON array like this (no other text):
+[
+  {"section": "Introduction", "prompt": "A detailed image prompt here with artistic style, mood, lighting..."},
+  {"section": "Main Point", "prompt": "Another detailed image prompt..."}
+]`,
+            messages: [
+              { role: 'user', content: `Generate image prompts for this blog:\n\n${generatedText.slice(0, 3000)}` },
+            ],
+          }),
+        });
+
+        if (imagePromptsResponse.ok) {
+          const promptsResult = await imagePromptsResponse.json();
+          const promptsText = promptsResult.content?.[0]?.text || '';
+          
+          // Parse JSON from response
+          const jsonMatch = promptsText.match(/\[[\s\S]*\]/);
+          if (jsonMatch) {
+            const imagePrompts = JSON.parse(jsonMatch[0]);
+            
+            // Generate images in parallel
+            const imageResults = await Promise.all(
+              imagePrompts.slice(0, 3).map(async (item: { section: string; prompt: string }) => {
+                const imageUrl = await generateImage(item.prompt);
+                return {
+                  section: item.section,
+                  prompt: item.prompt,
+                  url: imageUrl,
+                };
+              })
+            );
+
+            return NextResponse.json({
+              success: true,
+              data: {
+                content: [{ text: generatedText }],
+                images: imageResults.filter(img => img.url !== null),
+              },
+            });
+          }
+        }
+      } catch (imageError) {
+        console.error('Image generation error:', imageError);
+        // Continue without images
+      }
+    }
+
+    // Handle image-prompts type - parse and return as prompts array
+    if (type === 'image-prompts') {
+      try {
+        const jsonMatch = generatedText.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          const imagePrompts = JSON.parse(jsonMatch[0]);
+          const prompts = imagePrompts.map((item: { prompt: string }) => item.prompt);
+          return NextResponse.json({
+            success: true,
+            prompts,
+          });
+        }
+      } catch (parseError) {
+        console.error('Failed to parse image prompts:', parseError);
+      }
+      return NextResponse.json({
+        success: true,
+        prompts: [],
+      });
+    }
 
     return NextResponse.json({
       success: true,

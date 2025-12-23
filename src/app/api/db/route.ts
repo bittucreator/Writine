@@ -104,11 +104,13 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.from(table).insert(insertData).select();
 
     if (error) {
+      console.error('Supabase insert error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ data });
   } catch (error) {
+    console.error('DB API POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

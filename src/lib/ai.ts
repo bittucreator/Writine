@@ -76,6 +76,64 @@ export async function generateBlogContent(prompt: string, tone: string = 'profes
   }
 }
 
+// Generate blog content with AI images
+export interface AIGeneratedImage {
+  section: string;
+  prompt: string;
+  url: string;
+}
+
+export interface BlogContentWithImages {
+  content: string;
+  images: AIGeneratedImage[];
+}
+
+export async function generateBlogContentWithImages(
+  prompt: string, 
+  tone: string = 'professional'
+): Promise<BlogContentWithImages> {
+  try {
+    const response = await fetch('/api/generate-ai-content', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'blog',
+        prompt,
+        tone,
+        generateImages: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('AI API error:', error);
+      throw new Error('Failed to generate content');
+    }
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to generate content');
+    }
+
+    let content = result.data.content[0].text;
+    
+    // If content contains markdown syntax, convert to HTML
+    if (content.includes('##') || content.includes('**') || /^- /m.test(content)) {
+      content = markdownToHtml(content);
+    }
+    
+    return {
+      content,
+      images: result.data.images || [],
+    };
+  } catch (error) {
+    console.error('AI generation error:', error);
+    throw error;
+  }
+}
+
 // Streaming version for live AI writing effect
 export async function streamBlogContent(
   prompt: string, 

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const emailPayload = {
-      from: `${process.env.UNOSEND_FROM_NAME || 'Writine'} <${process.env.UNOSEND_FROM_EMAIL || 'contact@writine.com'}>`,
+      from: process.env.UNOSEND_FROM_EMAIL || 'contact@writine.com',
       to: [CONTACT_EMAIL],
       reply_to: email,
       subject: subject || `Contact from ${name}`,

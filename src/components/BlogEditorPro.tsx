@@ -22,6 +22,12 @@ import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   Bold,
   Italic,
   Underline as UnderlineIcon,
@@ -63,6 +69,9 @@ interface BlogEditorProProps {
   content: string;
   onChange: (content: string) => void;
   placeholder?: string;
+  onAIImprove?: (prompt: string) => Promise<void>;
+  aiProcessing?: boolean;
+  streamingContent?: string;
 }
 
 interface ToolbarButtonProps {
@@ -118,7 +127,10 @@ const ToolbarButton = ({ onClick, active, disabled, children, title }: ToolbarBu
 
 const ToolbarDivider = () => <div className="w-px h-6 bg-slate-200 mx-1" />;
 
-export default function BlogEditorPro({ content, onChange, placeholder }: BlogEditorProProps) {
+export default function BlogEditorPro({ content, onChange, placeholder, onAIImprove, aiProcessing, streamingContent }: BlogEditorProProps) {
+  const [showAIPrompt, setShowAIPrompt] = useState(false);
+  const [aiPrompt, setAIPrompt] = useState('');
+  const aiPromptRef = useRef<HTMLInputElement>(null);
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [showImageInput, setShowImageInput] = useState(false);
@@ -905,8 +917,120 @@ export default function BlogEditorPro({ content, onChange, placeholder }: BlogEd
           >
             <Redo className="w-4 h-4" />
           </ToolbarButton>
+
+          {onAIImprove && (
+            <>
+              <ToolbarDivider />
+              <ToolbarButton
+                onClick={() => {
+                  setShowAIPrompt(!showAIPrompt);
+                  setTimeout(() => aiPromptRef.current?.focus(), 100);
+                }}
+                active={showAIPrompt}
+                disabled={aiProcessing}
+                title="AI Improve (Ask AI to improve your content)"
+              >
+                <Sparkles className={`w-4 h-4 ${aiProcessing ? 'animate-pulse' : ''}`} />
+              </ToolbarButton>
+            </>
+          )}
         </div>
       </div>
+
+      {/* AI Prompt Dialog */}
+      <Dialog open={showAIPrompt} onOpenChange={setShowAIPrompt}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-[#918df6]" />
+              AI Improve
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Tell AI how you want to improve your content
+            </p>
+            <Input
+              ref={aiPromptRef}
+              value={aiPrompt}
+              onChange={(e) => setAIPrompt(e.target.value)}
+              placeholder="e.g., 'Make it more engaging' or 'Improve SEO for keyword: AI tools'"
+              className="w-full"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && aiPrompt.trim() && !aiProcessing) {
+                  onAIImprove?.(aiPrompt);
+                  setAIPrompt('');
+                  setShowAIPrompt(false);
+                }
+              }}
+              disabled={aiProcessing}
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowAIPrompt(false);
+                  setAIPrompt('');
+                }}
+                disabled={aiProcessing}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (aiPrompt.trim()) {
+                    onAIImprove?.(aiPrompt);
+                    setAIPrompt('');
+                    setShowAIPrompt(false);
+                  }
+                }}
+                disabled={!aiPrompt.trim() || aiProcessing}
+                className="bg-[#918df6] hover:bg-[#7b77e0]"
+              >
+                {aiProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Improving...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Improve
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Generating Live Writing Overlay */}
+      {aiProcessing && (
+        <div className="absolute inset-0 bg-white z-50 overflow-auto">
+          {/* Header */}
+          <div className="sticky top-0 bg-white/95 backdrop-blur-sm px-4 py-3 border-b" style={{ borderColor: 'rgba(0, 0, 0, 0.08)' }}>
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-[#918df6] animate-pulse" />
+              <span className="font-medium text-slate-900">AI is writing...</span>
+            </div>
+          </div>
+          
+          {/* Live Content Display */}
+          <div className="p-4">
+            {streamingContent ? (
+              <div className="prose prose-slate max-w-none">
+                <div dangerouslySetInnerHTML={{ __html: streamingContent }} />
+                <span className="inline-block w-0.5 h-5 bg-[#918df6] animate-pulse ml-0.5 align-middle"></span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-slate-500">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Starting generation...</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Editor Content */}
       <div className="relative">

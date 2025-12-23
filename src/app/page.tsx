@@ -243,11 +243,11 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto">
+          <div className="flex justify-center">
             {PRICING.map((plan) => (
               <div 
                 key={plan.name} 
-                className={`relative bg-white rounded-xl p-6 ${plan.highlighted ? 'scale-105' : ''}`}
+                className={`relative bg-white rounded-xl p-6 max-w-sm w-full ${plan.highlighted ? 'scale-105' : ''}`}
                 style={{ border: plan.highlighted ? '2px solid #918df6' : '0.5px solid rgba(0, 0, 0, 0.08)' }}
               >
                 {plan.highlighted && (

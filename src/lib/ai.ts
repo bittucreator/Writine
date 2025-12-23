@@ -76,6 +76,55 @@ export async function generateBlogContent(prompt: string, tone: string = 'profes
   }
 }
 
+// Streaming version for live AI writing effect
+export async function streamBlogContent(
+  prompt: string, 
+  tone: string = 'professional',
+  onChunk: (text: string) => void
+): Promise<string> {
+  try {
+    const response = await fetch('/api/generate-ai-content/stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt,
+        tone,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate content');
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('No response body');
+
+    const decoder = new TextDecoder();
+    let fullContent = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      fullContent += chunk;
+      onChunk(fullContent);
+    }
+
+    // Convert markdown to HTML if needed
+    if (fullContent.includes('##') || fullContent.includes('**') || /^- /m.test(fullContent)) {
+      fullContent = markdownToHtml(fullContent);
+    }
+
+    return fullContent;
+  } catch (error) {
+    console.error('Streaming error:', error);
+    throw error;
+  }
+}
+
 export async function generateOutline(topic: string, keywords: string = ''): Promise<string[]> {
   try {
     const response = await fetch('/api/generate-ai-content', {

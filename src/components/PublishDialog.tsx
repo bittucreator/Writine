@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, startTransition } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,6 +56,7 @@ export function PublishDialog({
   onPublish,
   publishing = false,
 }: PublishDialogProps) {
+  const { user } = useAuth();
   const [domains, setDomains] = useState<Domain[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDomain, setSelectedDomain] = useState<string>('none');
@@ -65,6 +67,8 @@ export function PublishDialog({
 
   // Suppress unused variable warning
   void _blogId;
+
+  const userId = user?.id;
 
   const loadDomains = useCallback(async () => {
     setLoading(true);
@@ -154,7 +158,7 @@ export function PublishDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-125">
+      <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Globe className="w-5 h-5 text-[#918df6]" />
@@ -165,7 +169,7 @@ export function PublishDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-4 overflow-hidden">
           {/* Blog Title Preview */}
           <div className="bg-slate-50 rounded-lg p-3">
             <p className="text-xs text-muted-foreground mb-1">Publishing</p>
@@ -264,11 +268,13 @@ export function PublishDialog({
           {/* URL Preview */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Published URL</Label>
-            <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
+            <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg w-full">
               <LinkIcon className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-sm text-slate-600 truncate flex-1">
-                {getPublishedUrl()}
-              </span>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <span className="text-sm text-slate-600 block truncate" title={getPublishedUrl()}>
+                  {getPublishedUrl()}
+                </span>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"

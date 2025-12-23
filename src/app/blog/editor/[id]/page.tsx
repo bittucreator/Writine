@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 import BlogEditorPro from '@/components/BlogEditorPro';
 import { PublishDialog } from '@/components/PublishDialog';
 import { analyzeSEO, generateSlug } from '@/lib/seo';
+import { streamBlogContent } from '@/lib/ai';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,6 +57,8 @@ export default function BlogEditorPage() {
   const [showSeoPanel, setShowSeoPanel] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [streamingContent, setStreamingContent] = useState('');
 
   const seoAnalysis = analyzeSEO(title, content, seoTitle, seoDescription, seoKeywords);
 
@@ -185,6 +188,45 @@ export default function BlogEditorPage() {
       toast.error('Failed to publish blog. Please try again.');
     } finally {
       setPublishing(false);
+    }
+  };
+
+  const handleAIImprove = async (prompt: string) => {
+    if (!content.trim()) {
+      toast.error('Please add some content first');
+      return;
+    }
+
+    setRegenerating(true);
+    setStreamingContent('');
+    
+    try {
+      const fullPrompt = `Improve the following blog content based on this request: "${prompt}"
+
+Current content:
+${content}
+
+Instructions:
+- Keep the same general structure and topic
+- Apply the requested improvements
+- Maintain the existing formatting (headings, lists, etc.)
+- Return the improved HTML content only`;
+      
+      // Stream content in real-time
+      const finalContent = await streamBlogContent(
+        fullPrompt,
+        'professional',
+        (chunk) => setStreamingContent(chunk)
+      );
+      
+      setContent(finalContent);
+      toast.success('Content improved with AI!');
+    } catch (error) {
+      console.error('Error improving content:', error);
+      toast.error('Failed to improve content. Please try again.');
+    } finally {
+      setRegenerating(false);
+      setStreamingContent('');
     }
   };
 
@@ -395,7 +437,13 @@ export default function BlogEditorPage() {
                 </div>
 
                 {/* Editor */}
-                <BlogEditorPro content={content} onChange={setContent} />
+                <BlogEditorPro 
+                  content={content} 
+                  onChange={setContent}
+                  onAIImprove={handleAIImprove}
+                  aiProcessing={regenerating}
+                  streamingContent={streamingContent}
+                />
               </>
             )}
           </div>

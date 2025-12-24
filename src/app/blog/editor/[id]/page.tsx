@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import BlogEditorPro from '@/components/BlogEditorPro';
-import AIImageGallery, { AIImage } from '@/components/AIImageGallery';
 import { PublishDialog } from '@/components/PublishDialog';
 import { analyzeSEO, generateSlug } from '@/lib/seo';
 import { streamBlogContent } from '@/lib/ai';
@@ -30,6 +29,13 @@ import {
   Globe,
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+interface AIImage {
+  id: string;
+  section: string;
+  prompt: string;
+  url: string;
+}
 
 export default function BlogEditorPage() {
   const params = useParams();
@@ -300,13 +306,6 @@ Instructions:
     }
   };
 
-  // Insert AI image into content
-  const handleInsertAIImage = (imageUrl: string) => {
-    const imageHtml = `<img src="${imageUrl}" alt="AI generated image" class="rounded-xl max-w-full h-auto my-6 shadow-sm border" />`;
-    setContent(prevContent => prevContent + imageHtml);
-    toast.success('Image inserted into content!');
-  };
-
   const addKeyword = () => {
     if (keywordInput.trim() && !seoKeywords.includes(keywordInput.trim())) {
       setSeoKeywords([...seoKeywords, keywordInput.trim()]);
@@ -335,12 +334,11 @@ Instructions:
           <div className="flex items-center gap-2 sm:gap-3">
             <Button 
               variant="ghost" 
-              size="sm" 
+              size="icon" 
               onClick={() => router.push('/dashboard')}
-              className="gap-1 sm:gap-2 px-2 sm:px-3"
+              className="h-8 w-8"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Dashboard</span>
             </Button>
             <div className="hidden sm:block w-px h-5 bg-slate-200" />
             <span className="text-sm font-medium text-slate-700 truncate max-w-24 sm:max-w-50">
@@ -521,16 +519,6 @@ Instructions:
                   aiProcessing={regenerating}
                   streamingContent={streamingContent}
                 />
-
-                {/* AI Generated Images */}
-                <div className="bg-white rounded-xl p-4 sm:p-6" style={{ border: '0.5px solid rgba(0, 0, 0, 0.08)' }}>
-                  <AIImageGallery
-                    images={aiImages}
-                    onImagesChange={setAIImages}
-                    onInsertImage={handleInsertAIImage}
-                    disabled={regenerating}
-                  />
-                </div>
               </>
             )}
           </div>

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { Loader2 } from 'lucide-react';
 
 export default function AuthCallbackPage() {
@@ -40,6 +41,27 @@ export default function AuthCallbackPage() {
             console.error('Error exchanging code:', error);
             router.push('/login?error=auth_failed');
             return;
+          }
+        }
+
+        // Ensure user profile exists
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const existingProfile = await db.getOne<{ id: string }>('user_profiles', {
+            select: 'id',
+            filters: { id: user.id }
+          });
+          
+          if (!existingProfile) {
+            // Create profile for new user
+            await db.upsert('user_profiles', {
+              id: user.id,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+              avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'id' });
           }
         }
 
